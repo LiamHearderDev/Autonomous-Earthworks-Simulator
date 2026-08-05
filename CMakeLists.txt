@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(AutonomousEarthworksSim LANGUAGES CXX)
+project(gz-chrono-loader LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Perhaps add an executable target here, for example:
-#   add_executable(AutonomousEarthworksSim main.cpp)
+find_package(gz-plugin REQUIRED COMPONENTS all)
+find_package(gz-physics REQUIRED)
 
-# However, since this is a plugin, you might want to define 
-# a library target instead?
+add_executable(gz-chrono-loader gz-chrono-loader.cpp)
+
+target_link_libraries(gz-chrono-loader
+    gz-plugin::loader
+    gz-physics::gz-physics
+)
