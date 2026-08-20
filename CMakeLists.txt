@@ -5,8 +5,4 @@ project(AutonomousEarthworksSim LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Perhaps add an executable target here, for example:
-#   add_executable(AutonomousEarthworksSim main.cpp)
-
-# However, since this is a plugin, you might want to define 
-# a library target instead?
+# Need to check the CMakeLists.txt file for Dartsim as an example.
