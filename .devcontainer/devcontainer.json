@@ -1,0 +1,29 @@
+{
+  "name": "Autonomous Earthworks Simulator",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools-extension-pack",
+        "xaver.clang-format",
+        "redhat.vscode-xml"
+      ],
+      "settings": {
+        "cmake.configureOnOpen": true,
+        "cmake.generator": "Ninja",
+        "C_Cpp.default.cppStandard": "c++17",
+        "C_Cpp.default.intelliSenseMode": "linux-gcc-x64",
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "GZ_VERSION": "harmonic"
+  },
+  "postCreateCommand": "cmake --version && c++ --version && gz sim --versions"
+}
