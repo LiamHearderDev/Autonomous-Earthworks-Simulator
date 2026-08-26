@@ -1,0 +1,1 @@
+The `static` directory is designed to store everything in the project that is unchanging. For example, 3D models will never be edited at runtime. As such, they are static.

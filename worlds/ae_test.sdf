@@ -66,8 +66,52 @@
       <pose>0 0 0 0 0 0</pose>
       <self_collide>false</self_collide>
     </model>
+
+    <model name='excavator'>
+      <pose>0 0 2 1.5700000000000001 0 0</pose>
+      <static>false</static>
+      <self_collide>false</self_collide>
+      <link name='link'>
+        <inertial>
+          <inertia>
+            <ixx>0.074999999999999997</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.074999999999999997</iyy>
+            <iyz>0</iyz>
+            <izz>0.074999999999999997</izz>
+          </inertia>
+          <mass>10</mass>
+          <pose>0 0 0 0 0 0</pose>
+        </inertial>
+        <collision name='excavator_collision'>
+          <geometry>
+            <mesh>
+              <uri>static/models/excavator/source/Excavator.obj</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode/>
+            </friction>
+            <bounce/>
+            <contact/>
+          </surface>
+        </collision>
+        <visual name='excavator_visual'>
+          <geometry>
+            <mesh>
+              <uri>static/models/excavator/source/Excavator.obj</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <pose>0 0 0 0 0 0</pose>
+        <enable_wind>false</enable_wind>
+      </link>
+    </model>
+
     <model name='cone'>
-      <pose>-1.4792760739082507 2.393253949254103 0.5 0 0 0</pose>
+      <pose>-1.4792799999999999 2.3932500000000001 0.5 5.2549300000000001e-17 -7.7132800000000005e-10 6.9697699999999998e-23</pose>
       <link name='cone_link'>
         <inertial>
           <inertia>
@@ -116,7 +160,7 @@
       <self_collide>false</self_collide>
     </model>
     <model name='box'>
-      <pose>0.32146598464590825 -2.5368235888978381 0.5 0 0 0</pose>
+      <pose>0.32146599999999997 -2.5368200000000001 0.5 6.2287699999999997e-22 9.3279700000000006e-22 -3.63155e-22</pose>
       <link name='box_link'>
         <inertial>
           <inertia>
@@ -152,7 +196,7 @@
           </geometry>
           <material>
             <ambient>0.300000012 0.300000012 0.300000012 1</ambient>
-            <diffuse>0.699999988 0.699999988 0.699999988 1</diffuse>
+            <diffuse>0.5 0 0.5 1</diffuse>
             <specular>1 1 1 1</specular>
           </material>
         </visual>
@@ -171,9 +215,9 @@
       <specular>0.200000003 0.200000003 0.200000003 1</specular>
       <attenuation>
         <range>1000</range>
-        <linear>0.01</linear>
-        <constant>0.90000000000000002</constant>
-        <quadratic>0.001</quadratic>
+        <linear>0.0099999997764825821</linear>
+        <constant>0.89999997615814209</constant>
+        <quadratic>0.0010000000474974513</quadratic>
       </attenuation>
       <spot>
         <inner_angle>0</inner_angle>
