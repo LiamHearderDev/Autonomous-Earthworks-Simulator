@@ -211,9 +211,7 @@
     </model>
     <model name='work_platform'>
   <pose>8 8 0.25 0 0 0</pose>
-
   <link name='platform_link'>
-
     <collision name='platform_collision'>
       <geometry>
         <box>
@@ -221,23 +219,19 @@
         </box>
       </geometry>
     </collision>
-
     <visual name='platform_visual'>
       <geometry>
         <box>
           <size>5 5 0.5</size>
         </box>
       </geometry>
-
       <material>
         <ambient>0.5 0.5 0.5 1</ambient>
         <diffuse>0.6 0.6 0.6 1</diffuse>
         <specular>0.2 0.2 0.2 1</specular>
       </material>
     </visual>
-
   </link>
-
   <static>true</static>
 </model>
     <light name='sun' type='directional'>
