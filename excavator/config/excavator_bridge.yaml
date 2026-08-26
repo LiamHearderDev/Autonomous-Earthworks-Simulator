@@ -1,0 +1,23 @@
+# Since ROS2 and Gazebo have different transport methods, we have to bridge them.
+# This file will bridge the ros topics and gz topics.
+
+# Topic subscribed to by DiffDrive plugin
+- ros_topic_name: "cmd_vel"
+  gz_topic_name: "cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+
+# Topic published by DiffDrive plugin
+- ros_topic_name: "odom"
+  gz_topic_name: "odom"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+# Topic published by DiffDrive plugin
+- ros_topic_name: "/tf"
+  gz_topic_name: "/model/basic_robot/tf" # TODO: change this to excavator
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "gz.msgs.Pose_V"
+  direction: GZ_TO_ROS
