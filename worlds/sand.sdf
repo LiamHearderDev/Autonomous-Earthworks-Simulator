@@ -23,7 +23,7 @@
         <collision name="collision">
           <geometry>
             <heightmap>
-              <uri>static/models/Heightmap.png</uri>
+              <uri>static/resources/Heightmap.png</uri>
               <size>513 513 20</size>
               <pos>0 0 0</pos>
             </heightmap>
@@ -32,13 +32,13 @@
         <visual name="visual">
           <geometry>
             <heightmap>
-              <uri>static/models/Heightmap.png</uri>
+              <uri>static/resources/Heightmap.png</uri>
               <size>513 513 20</size>
               <pos>0 0 0</pos>
               <texture>
-                <size>1</size>
-                <diffuse>static/models/sandDiffuse.png</diffuse>
-                <normal>static/models/normalMap.png</normal>
+                <size>10</size>
+                <diffuse>static/resources/sandDiffuse.png</diffuse>
+                <normal>static/resources/normalMap.png</normal>
               </texture>
               <blend>
                 <min_height>0</min_height>
