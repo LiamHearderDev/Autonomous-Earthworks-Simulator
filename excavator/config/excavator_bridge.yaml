@@ -31,7 +31,7 @@
 
 # ros topic used for controlling the excavator arm
 - ros_topic_name: "arm/boom_cmd"
-  gz_topic_name: "/model/excavator/upper_arm_joint/cmd_vel"
+  gz_topic_name: "/model/excavator/joint/upper_arm_joint/cmd_vel"
   ros_type_name: "std_msgs/msg/Float64"
   gz_type_name: "gz.msgs.Double"
   direction: ROS_TO_GZ

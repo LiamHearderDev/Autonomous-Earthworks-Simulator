@@ -39,8 +39,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            # Add any Python nodes you write here, e.g.:
-            # 'my_node = excavator.my_node:main',
+            # Add here any Python nodes you write
+            'arm_teleop = excavator.arm_teleop:main',
         ],
     },
 )
