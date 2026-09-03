@@ -35,8 +35,8 @@
     </collision>
   </link>
 
-  <!-- ================= ARM ================= -->
-  <link name="arm">
+  <!-- ================= UPPER ARM ================= -->
+  <link name="upper_arm">
     <inertial>
       <origin xyz="0 0 1" rpy="0 0 0"/>
       <mass value="0.1"/>
@@ -59,12 +59,12 @@
     </collision>
   </link>
 
-  <joint name="arm_joint" type="revolute">
-    <origin xyz="1.0 0 0.25" rpy="0 0.785398 0"/> <!-- 0.25 because the arm is attached to the front of the chassis -->
+  <joint name="upper_arm_joint" type="revolute">
     <parent link="chassis"/>
-    <child link="arm"/>
+    <child link="upper_arm"/>
+    <origin xyz="1.0 0 0.25" rpy="0 0.785398 0"/> <!-- Front + angled 45 degrees. -->
     <axis xyz="0 1 0"/>
-    <limit effort="100" velocity="1" lower="-1.57" upper="1.57"/>
+    <limit lower="-0.2" upper="0.5" effort="1000" velocity="0.5" />
     <dynamics damping="2.0" friction="0.5"/>
   </joint>
 
@@ -250,8 +250,7 @@
 
   <!-- ================= DIFF DRIVE PLUGIN ================= -->
   <gazebo>
-    <plugin filename="gz-sim-diff-drive-system"
-            name="gz::sim::systems::DiffDrive">
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
       <left_joint>back_left_wheel_joint</left_joint>
       <left_joint>front_left_wheel_joint</left_joint>
       <right_joint>back_right_wheel_joint</right_joint>
@@ -263,4 +262,9 @@
     </plugin>
   </gazebo>
 
+  <!-- ================= JOINT CONTROLLER PLUGIN ================= -->
+  <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+    <joint_name>upper_arm_joint</joint_name>
+    <topic>/model/excavator/upper_arm_joint/cmd_vel</topic>
+  </plugin>
 </robot>
