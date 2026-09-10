@@ -40,6 +40,39 @@
     </collision>
   </link>
 
+  <!-- ================= BLADE ================= -->
+  <!-- Placeholder blade: 0.1 m thick, 1.6 m wide, 0.5 m high. -->
+  <link name="blade">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <!-- Test mass; inertia calculated for this 1 kg solid box. -->
+      <mass value="1.0"/>
+      <inertia ixx="0.234167" ixy="0" ixz="0"
+               iyy="0.021667" iyz="0"
+               izz="0.214167"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 1.6 0.5"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 1.6 0.5"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Fixed mounting for the first test; raising/lowering comes later. -->
+  <joint name="chassis_to_blade" type="fixed">
+    <origin xyz="1.15 0 0" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="blade"/>
+  </joint>
+
   <!-- ================= BACK LEFT WHEEL ================= -->
   <link name="back_left_wheel">
     <inertial>
