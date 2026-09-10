@@ -278,6 +278,25 @@
     </plugin>
   </gazebo>
 
+  <!-- ================= BLADE POSITION CONTROLLER ================= -->
+  <gazebo>
+    <plugin filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>chassis_to_blade</joint_name>
+      <!-- Target displacement in metres from the joint's mounting position. -->
+      <topic>/model/bulldozer/blade/cmd_pos</topic>
+      <initial_position>0.0</initial_position>
+      <p_gain>200.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>30.0</d_gain>
+      <!-- Upward support for the current 1 kg blade in 9.8 m/s^2 gravity. -->
+      <cmd_offset>9.8</cmd_offset>
+      <!-- Force limits in newtons, matching the joint's 100 N effort limit. -->
+      <cmd_max>100.0</cmd_max>
+      <cmd_min>-100.0</cmd_min>
+    </plugin>
+  </gazebo>
+
   <!-- ================= JOINT STATE PUBLISHER ================= -->
   <gazebo>
     <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
