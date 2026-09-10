@@ -2,7 +2,7 @@ import os
 from glob import glob
 from setuptools import setup
 
-package_name = 'excavator'
+package_name = 'bulldozer'
 
 setup(
     name=package_name,
@@ -26,6 +26,10 @@ setup(
         (os.path.join('share', package_name, 'config'),
             glob('config/*')),
 
+        # Gazebo worlds
+        (os.path.join('share', package_name, 'worlds'),
+            glob('worlds/*.sdf')),
+
         # Meshes, if your URDF references any (STL/DAE etc.)
         (os.path.join('share', package_name, 'meshes'),
             glob('meshes/*')),
@@ -34,13 +38,12 @@ setup(
     zip_safe=True,
     maintainer='liamhearder',
     maintainer_email='LiamHearderDev@gmail.com',
-    description='TODO: excavator package description',
+    description='ROS 2 and Gazebo movement scaffold for an autonomous bulldozer.',
     license='TODO: License declarations?',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            # Add any Python nodes you write here, e.g.:
-            # 'my_node = excavator.my_node:main',
+            # Add here any Python nodes you write
         ],
     },
 )

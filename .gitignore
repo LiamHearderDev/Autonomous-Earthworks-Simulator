@@ -54,7 +54,7 @@ CATKIN_IGNORE
 .origin
 
 # ROS2 Robot Package files
-/excavator/install
-/excavator/log
-/bulldozer/install
-/bulldozer/log
+install/
+log/
+__pycache__/
+*.egg-info/
