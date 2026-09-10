@@ -7,6 +7,9 @@
   <material name="red">
     <color rgba="1.0 0.0 0.0 1"/>
   </material>
+  <material name="yellow">
+    <color rgba="1.0 1.0 0.0 1"/>
+  </material>
 
   <!-- Inertia-free ROS root frame, coincident with the chassis. -->
   <link name="base_link"/>
@@ -41,36 +44,40 @@
   </link>
 
   <!-- ================= BLADE ================= -->
-  <!-- Placeholder blade: 0.1 m thick, 1.6 m wide, 0.5 m high. -->
   <link name="blade">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <!-- Test mass; inertia calculated for this 1 kg solid box. -->
       <mass value="1.0"/>
-      <inertia ixx="0.234167" ixy="0" ixz="0"
-               iyy="0.021667" iyz="0"
-               izz="0.214167"/>
+      <!-- Inertia for the 1 kg, 1.5 x 1.5 x 0.2 m blade box. -->
+      <inertia ixx="0.190833" ixy="0" ixz="0"
+               iyy="0.190833" iyz="0"
+               izz="0.375"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.1 1.6 0.5"/>
+        <box size="1.5 1.5 0.2"/>
       </geometry>
-      <material name="blue"/>
+      <material name="yellow"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.1 1.6 0.5"/>
+        <box size="1.5 1.5 0.2"/>
       </geometry>
     </collision>
   </link>
 
-  <!-- Fixed mounting for the first test; raising/lowering comes later. -->
-  <joint name="chassis_to_blade" type="fixed">
-    <origin xyz="1.15 0 0" rpy="0 0 0"/>
+  <!-- Place the blade ahead of the chassis without overlapping it. -->
+  <joint name="chassis_to_blade" type="prismatic">
+    <origin xyz="1.85 0 0" rpy="0 0 0"/>
     <parent link="chassis"/>
     <child link="blade"/>
+    <!-- Slide vertically; positive displacement raises the blade. -->
+    <axis xyz="0 0 1"/>
+    <!-- Travel in metres, force in newtons, speed in metres/second. -->
+    <limit lower="-0.3" upper="0.3" effort="100" velocity="0.2"/>
+    <dynamics damping="5.0" friction="0.0"/>
   </joint>
 
   <!-- ================= BACK LEFT WHEEL ================= -->
