@@ -36,7 +36,7 @@ def generate_launch_description():
     # ---- Launch arguments -------------------------------------------------
     world_arg = DeclareLaunchArgument(
         "world",
-        default_value=os.path.join(pkg_share, "worlds", "bulldozer_empty.sdf"),
+        default_value=os.path.join(pkg_share, "worlds", "bulldozer_sand.sdf"),
         description="Gazebo world file to load",
     )
     use_sim_time_arg = DeclareLaunchArgument(
