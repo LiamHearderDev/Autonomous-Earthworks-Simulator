@@ -3,9 +3,10 @@
 Simple keyboard teleop for a single arm joint (e.g. excavator boom).
 
 Controls:
-  + - move arm up   (positive velocity)
-  - - move arm down (negative velocity)
-  0 - stop
+  8 - move arm up
+  5 - stop
+  2 - move arm down
+  
   q - quit
   Ctrl-C - quit
 
@@ -24,9 +25,9 @@ from std_msgs.msg import Float64
 ARM_SPEED = 0.5  # rad/s, tune to your joint's <limit velocity="...">
 
 KEY_BINDINGS = {
-    '+': ARM_SPEED,
-    '-': -ARM_SPEED,
-    '0': 0.0,
+    '8': -ARM_SPEED,
+    '2': ARM_SPEED,
+    '5': 0.0,
     # Potentially add more keys for other actions
 }
 
@@ -46,7 +47,7 @@ class ArmTeleop(Node):
         super().__init__('arm_teleop')
         self.publisher = self.create_publisher(Float64, 'arm/boom_cmd', 10)
 
-    def send_velocity(self, value: float):
+    def publish(self, value):
         msg = Float64()
         msg.data = value
         self.publisher.publish(msg)
@@ -56,10 +57,16 @@ def main():
     settings = termios.tcgetattr(sys.stdin)
 
     rclpy.init()
-    node = ArmTeleop()
 
+    # Set up a dictionary for all publishing nodes
+    Nodes: dict[str, Node] = {}
+
+    Nodes["arm"] = ArmTeleop()
+
+    # Prints the explanation to the consol
     print(__doc__)
 
+    # ====== MAIN LOOP ====== #
     try:
         while True:
             key = get_key(settings)
@@ -67,14 +74,14 @@ def main():
                 break
             elif key in KEY_BINDINGS:
                 velocity = KEY_BINDINGS[key]
-                node.send_velocity(velocity)
+                Nodes["arm"].publish(velocity)
             # Unrecognized keys are ignored
     except Exception as e:
         print(e)
     finally:
         # Always stop the arm on exit, don't leave it moving
-        node.send_velocity(0.0)
-        node.destroy_node()
+        Nodes["arm"].publish(0.0)
+        Nodes["arm"].destroy_node()
         rclpy.shutdown()
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
 
