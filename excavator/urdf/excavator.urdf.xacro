@@ -11,6 +11,41 @@
     <color rgba="0.0 1.0 0.0 1"/>
   </material>
 
+  <!-- ================= ROOT ================= -->
+  <link name="root">
+  </link>
+
+  <!-- ================= BASE ================= -->
+  <link name="base">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="5"/>
+      <inertia ixx="0.095329" ixy="0" ixz="0"
+               iyy="0.381317" iyz="0"
+               izz="0.476646"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="2.0 1.0 0.5"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="2.0 1.0 0.5"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="base_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+    <parent link="root"/>
+    <child link="base"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
   <!-- ================= CHASSIS ================= -->
   <link name="chassis">
     <inertial>
@@ -23,17 +58,24 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="2.0 1.0 0.5"/>
+        <box size="1.5 1.0 1.0"/>
       </geometry>
       <material name="blue"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="2.0 1.0 0.5"/>
+        <box size="1.5 1.0 1.0"/>
       </geometry>
     </collision>
   </link>
+
+  <joint name="chassis_joint" type="fixed">
+    <origin xyz="0 0 1.25" rpy="0 0 0"/>
+    <parent link="base"/>
+    <child link="chassis"/>
+    <axis xyz="0 0 1"/>
+  </joint>
 
   <!-- ================= UPPER ARM ================= -->
   <link name="upper_arm">
@@ -65,7 +107,7 @@
     <origin xyz="1.0 0 0.25" rpy="0 0.785398 0"/> <!-- Front + angled 45 degrees. -->
     <axis xyz="0 1 0"/>
     <limit lower="-1.0" upper="1.0" effort="1000" velocity="0.5" />
-    <dynamics damping="0.2" friction="0.0"/>
+    <dynamics damping="5.7" friction="50.0"/>
   </joint>
 
   <!-- ================= BACK LEFT WHEEL ================= -->
@@ -94,7 +136,7 @@
 
   <joint name="back_left_wheel_joint" type="continuous">
     <origin xyz="-0.5 0.6 0" rpy="-1.5707 0 0"/>
-    <parent link="chassis"/>
+    <parent link="base"/>
     <child link="back_left_wheel"/>
     <axis xyz="0 0 1"/>
   </joint>
@@ -139,7 +181,7 @@
 
   <joint name="back_right_wheel_joint" type="continuous">
     <origin xyz="-0.5 -0.6 0" rpy="-1.5707 0 0"/>
-    <parent link="chassis"/>
+    <parent link="base"/>
     <child link="back_right_wheel"/>
     <axis xyz="0 0 1"/>
   </joint>
@@ -184,7 +226,7 @@
 
   <joint name="front_left_wheel_joint" type="continuous">
     <origin xyz="0.5 0.6 0" rpy="-1.5707 0 0"/>
-    <parent link="chassis"/>
+    <parent link="base"/>
     <child link="front_left_wheel"/>
     <axis xyz="0 0 1"/>
   </joint>
@@ -229,7 +271,7 @@
 
   <joint name="front_right_wheel_joint" type="continuous">
     <origin xyz="0.5 -0.6 0" rpy="-1.5707 0 0"/>
-    <parent link="chassis"/>
+    <parent link="base"/>
     <child link="front_right_wheel"/>
     <axis xyz="0 0 1"/>
   </joint>
@@ -267,7 +309,7 @@
     <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
       <joint_name>upper_arm_joint</joint_name>
       <topic>/model/excavator/joint/upper_arm_joint/cmd_vel</topic>
-      <use_force_commands>true</use_force_commands>
+      <use_force_commands>false</use_force_commands>
       <p_gain>3000.0</p_gain>   <!-- Used to correct differences in expected force and actual force. Higher = more correction. -->
       <i_gain>10.0</i_gain>     <!-- Used to correct small persistent errors that P alone doesn't fix. -->
       <d_gain>0.5</d_gain>

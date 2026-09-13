@@ -6,7 +6,7 @@ Controls:
   8 - move arm up
   5 - stop
   2 - move arm down
-  
+
   q - quit
   Ctrl-C - quit
 
