@@ -20,9 +20,9 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="100"/>
-      <inertia ixx="10.4167" ixz="0" 
-        ixy="40.0000" iyy="35.4167" iyz="0"
-        izz="41.6667" />
+      <inertia ixx="10.4167" ixy="0" ixz="0"
+               iyy="35.4167" iyz="0"
+               izz="41.6667"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -75,7 +75,7 @@
     <child link="chassis"/>
     <origin xyz="0 0 1.25" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
-    <limit lower="-1.5708" upper="1.5708" effort="1000" velocity="10.5" />
+    <limit lower="-1.5708" upper="1.5708" effort="1000" velocity="0.5" />
     <dynamics damping="0.1" friction="0.0"/>
   </joint>
 
@@ -109,6 +109,7 @@
     <origin xyz="1.0 0 0.25" rpy="0 0.785398 0"/> <!-- Front + angled 45 degrees. -->
     <axis xyz="0 1 0"/>
     <limit lower="-1.0" upper="1.0" effort="1000" velocity="0.5" />
+    <safety_controller soft_lower_limit="-1.0" soft_upper_limit="1.0" k_velocity="1.0" />
     <dynamics damping="5.7" friction="50.0"/>
   </joint>
 
@@ -309,22 +310,22 @@
   <!-- ================= JOINT CONTROLLER PLUGIN ================= -->
   <gazebo>
     <!-- UPPER ARM PITCH -->
-    <plugin filename="gz-sim-joint-controller-system" name="Upper_Arm_JointController">
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
       <joint_name>upper_arm_joint</joint_name>
       <topic>/model/excavator/joint/upper_arm_joint/cmd_vel</topic>
-      <use_force_commands>true</use_force_commands>
+      <use_force_commands>false</use_force_commands>
       <p_gain>3000.0</p_gain>   <!-- Used to correct differences in expected force and actual force. Higher = more correction. -->
       <i_gain>10.0</i_gain>     <!-- Used to correct small persistent errors that P alone doesn't fix. -->
-      <d_gain>0.5</d_gain>
+      <d_gain>10.0</d_gain>
     </plugin>
 
     <!-- CHASSIS ROTATION -->
-    <plugin filename="gz-sim-joint-controller-system" name="Chassis_JointController">
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
       <joint_name>chassis_joint</joint_name>
       <topic>/model/excavator/joint/chassis_joint/cmd_vel</topic>
       <use_force_commands>false</use_force_commands>
       <p_gain>100.0</p_gain>   <!-- Used to correct differences in expected force and actual force. Higher = more correction. -->
-      <i_gain>0.0</i_gain>     <!-- Used to correct small persistent errors that P alone doesn't fix. -->
+      <i_gain>10.0</i_gain>     <!-- Used to correct small persistent errors that P alone doesn't fix. -->
       <d_gain>10.0</d_gain>
     </plugin>
   </gazebo>

@@ -21,6 +21,9 @@ Publishes std_msgs/Float64 on 'arm/boom_cmd' and 'chassis/yaw_cmd',
 which ros_gz_bridge forwards to the JointController plugin's command topic.
 """
 
+import select   # For non-blocked I/O
+import time     # 
+
 import sys      # For reading keyboard input
 import termios  # POSIX terminal control library
 import tty      # POSIX terminal control library
@@ -29,109 +32,167 @@ import rclpy    # Python library for ROS 2
 from rclpy.node import Node
 from std_msgs.msg import Float64
 
+from sensor_msgs.msg import JointState  # For receiving data from the Joints (for margins)
 
-# ====== ARM CONFIG ====== #
-
-ARM_SPEED = 0.5  # rad/s, tune to revolute joint's <limit velocity="...">
-ARM_KEY_BINDINGS = {
-    '8': -ARM_SPEED,        # Up
-    '2': ARM_SPEED,         # Down
-    '5': 0.0,               # Stop
-}
-
-# ====== CHASSIS CONFIG ====== #
-
-CHASSIS_SPEED = 10.5
-CHASSIS_KEY_BINDINGS = {
-    '4': CHASSIS_SPEED,     # Left
-    '6': -CHASSIS_SPEED,    # Right
-    '5': 0.0,               # Stop
-}
+import threading        # So callbacks run on a different thread, since I/O blocks
+from rclpy.executors import MultiThreadedExecutor       # So all nodes run on same executor
 
 
-def get_key(settings):
+class Float64Publisher(Node):
+    """ A ROS2 node for teleoperating a joint using a Float64.
+    Originally designed to affect an axis for a joint's rotation. """
+
+    def __init__(self, name: str, joint_name: str, topic: str, key_bindings: dict):
+        super().__init__(name)
+        self.publisher = self.create_publisher(Float64, topic, 10)
+
+        self.key_bindings = key_bindings
+        self.joint_name = joint_name
+
+        # Begin listening to the Joint States
+        self.joint_position = None
+        self.create_subscription(
+            JointState,
+            'joint_states',
+            self.joint_state_callback,
+            10
+        )
+
+        # Margins are used to dampen, so the joint never reaches the real limit.
+        self.adhere_to_margins = False
+        self.lower_margin = -1.5708
+        self.upper_margin = 1.5708
+
+        self.current_velocity = 0.0
+
+
+    def publish(self, velocity):
+        """ Used to publish messages on a topic. """
+        if (self.joint_position is not None) and (self.adhere_to_margins == True):
+            if (self.joint_position >= self.upper_margin) and (velocity > 0):
+                print("APPROACHING UPPER LIMIT")
+                velocity = 0.0
+            if (self.joint_position <= self.lower_margin) and (velocity < 0):
+                velocity = 0.0
+                print("APPROACHING LOWER LIMIT")
+
+        self.current_velocity = velocity
+
+        msg = Float64()
+        msg.data = velocity
+        self.publisher.publish(msg)
+
+
+    def set_margins(self, lower: float, upper: float):
+        """ Used to define soft limits for joints. """
+        self.adhere_to_margins = True
+        self.lower_margin = lower
+        self.upper_margin = upper
+
+
+    def joint_state_callback(self, message):
+        """ Used to learn the joint positions. Useful for soft limits on joints. """
+        if self.joint_name not in message.name:
+            return
+        index = message.name.index(self.joint_name)
+        self.joint_position = message.position[index]
+
+        if (self.joint_position is not None) and (self.adhere_to_margins == True):
+            if (self.joint_position >= self.upper_margin) and (self.current_velocity > 0):
+                print("APPROACHING UPPER LIMIT")
+                self.publish(0.0)
+            if (self.joint_position <= self.lower_margin) and (self.current_velocity < 0):
+                print("APPROACHING LOWER LIMIT")
+                self.publish(0.0)
+### Float64Publisher ###
+
+
+def get_key():
     """ Get a single keypress from the terminal. """
-    tty.setraw(sys.stdin.fileno())
-    key = sys.stdin.read(1)
-    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
-    return key
 
+    readable, _, _ = select.select([sys.stdin], [], [], 0)
+    if readable:
+        return sys.stdin.read(1)
+    
+    return None
 
-class ArmTeleop(Node):
-    """ ROS2 node for teleoperating a single arm joint.
-    Designed to affect pitch. """
-
-    def __init__(self):
-        super().__init__('arm_teleop')
-        self.publisher = self.create_publisher(Float64, 'arm/boom_cmd', 10)
-
-    def publish(self, value):
-        msg = Float64()
-        msg.data = value
-        self.publisher.publish(msg)
-### ArmTeleop
-
-class ChassisTeleop(Node):
-    """ ROS2 node for teleoperating a chasiss joint. 
-    Designed to affect yaw. """
-
-    def __init__(self):
-        super().__init__('chassis_teleop')
-        self.publisher = self.create_publisher(Float64, 'chassis/yaw_cmd', 10)
-
-    def publish(self, value):
-        msg = Float64()
-        msg.data = value
-        self.publisher.publish(msg)
-### ChassisTeleop
 
 def main():
     settings = termios.tcgetattr(sys.stdin)
+    tty.setcbreak(sys.stdin.fileno())
 
     rclpy.init()
 
-    # Set up a dictionary for all publishing nodes
-    # TODO: Probably should refactor this to be a list, where nodes store their own key bindings and we iterate over all nodes
-    Nodes: dict[str, Node] = {}
+    # ====== Set up all publishing nodes ====== #
+    Nodes: list[Node] = []
 
-    Nodes["arm"] = ArmTeleop()
-    Nodes["chassis"] = ChassisTeleop()
+    # Upper arm - Pitch
+    upper_arm_node = Float64Publisher(      
+        name='arm_teleop',
+        joint_name='upper_arm_joint',
+        topic='arm/boom_cmd',
+        key_bindings={'8':-0.5, '2':0.5, '5': 0.0 }  # Up, Down, Stop
+    )
+    upper_arm_node.set_margins(lower=-1.0, upper=1.0)
+    Nodes.append(upper_arm_node)
 
-    # Prints the explanation to the consol
+    # Chassis - Yaw
+    chassis_node = Float64Publisher(      
+        name='chassis_teleop',
+        joint_name='chassis_joint',
+        topic='chassis/yaw_cmd',
+        key_bindings={'4':0.5, '6':-0.5, '5':0.0 }  # Left, Right, Stop
+    )
+    Nodes.append(chassis_node)
+
+
+    # ====== Ensure all nodes receive callbacks (on a different thread) ====== #
+    executor = MultiThreadedExecutor()
+    for node in Nodes:
+        executor.add_node(node)
+    executor_thread = threading.Thread(
+        target=executor.spin,
+        daemon=True
+    )
+    executor_thread.start()
+
+
+    # ====== Prints the explanation / controls to the terminal ====== #
     print(__doc__)
+
 
     # ====== MAIN LOOP ====== #
     try:
         while True:
-            key = get_key(settings)
+            key = get_key()
+            if (key is None):
+                time.sleep(0.01)
+                continue
 
             # Check if should exit
             if key == 'q' or key == '\x03':
                 break
 
-            # Check if moving arm
-            if key in ARM_KEY_BINDINGS:
-                velocity = ARM_KEY_BINDINGS[key]
-                Nodes["arm"].publish(velocity)
+            # If the key matches one of our nodes, publish the value
+            for node in Nodes:
+                if key in node.key_bindings:
+                    node.publish(velocity=node.key_bindings[key])
 
-            # Check if moving Chassis
-            if key in CHASSIS_KEY_BINDINGS:
-                velocity = CHASSIS_KEY_BINDINGS[key]
-                Nodes["chassis"].publish(velocity)
-
-            # Unrecognized keys are ignored
     except Exception as e:
         print(e)
     finally:
         # Always stop the arm on exit, don't leave it moving
 
-        Nodes["arm"].publish(0.0)
-        Nodes["arm"].destroy_node()
+        for node in Nodes:
+            node.publish(0.0)
 
-        Nodes["chassis"].publish(0.0)
-        Nodes['chassis'].destroy_node()
+        executor.shutdown()
+
+        for node in Nodes:
+            node.destroy_node()
 
         rclpy.shutdown()
+        executor_thread.join(timeout=1.0)
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
 
 

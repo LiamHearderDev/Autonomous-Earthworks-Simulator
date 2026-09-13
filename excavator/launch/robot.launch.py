@@ -30,6 +30,11 @@ def generate_launch_description():
 
     pkg_share = get_package_share_directory(pkg_name)
 
+    # Set the world path, through the package share directory
+    world_path = PathJoinSubstitution(
+        [ FindPackageShare(pkg_name), "worlds", "excavator_empty.sdf" ]
+    )
+
     # ---- Launch arguments -------------------------------------------------
     world_arg = DeclareLaunchArgument(
         "world",
