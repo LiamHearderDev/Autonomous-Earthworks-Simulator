@@ -79,3 +79,13 @@ source install/setup.bash
 ```bash
 ros2 launch excavator robot.launch.py
 ```
+
+### 10. In a separate terminal, launch the arm_teleop control application:
+First, execute step 8 in the new terminal, then:
+```bash
+cd path/to/Autonomous-Earthworks-Simulator/excavator
+
+source install/setup.bash
+
+ros2 run excavator arm_teleop
+```
