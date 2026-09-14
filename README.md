@@ -38,6 +38,8 @@ sudo apt install -y \
     ros-jazzy-xacro \
     ros-jazzy-teleop-twist-keyboard \
     ros-jazzy-ros2launch \
+    ros-jazzy-gz-ros2-control \
+    ros-jazzy-rviz2 \
 ```
 Note: `ros-jazzy-teleop-twist-keyboard` is optional and only needed if you want to control the excavator with keyboard input in the terminal.
 
