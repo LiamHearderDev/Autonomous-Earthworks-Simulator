@@ -33,6 +33,10 @@ setup(
         # For ROS2 model configurations
         (os.path.join('share', package_name, 'model'),
             glob('model/*')),
+
+        # For world files
+        (os.path.join('share', package_name, 'worlds'),
+            glob('worlds/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

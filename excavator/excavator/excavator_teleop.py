@@ -17,8 +17,8 @@ Other Controls:
     q - quit
     Ctrl-C - quit
 
-Publishes std_msgs/Float64 on 'arm/boom_cmd' and 'chassis/yaw_cmd', 
-which ros_gz_bridge forwards to the JointController plugin's command topic.
+Publishes one-element std_msgs/Float64MultiArray messages to the
+ros2_control forward-command controllers.
 """
 
 import select   # For non-blocked I/O
@@ -29,19 +29,17 @@ import tty      # POSIX terminal control library
 
 import rclpy    # Python library for ROS 2
 from rclpy.node import Node as RosNode
-from std_msgs.msg import Float64
+from std_msgs.msg import Float64MultiArray
 
 from sensor_msgs.msg import JointState  # For receiving data from the Joints (for margins)
 
-# TODO: change this to use Float64MultiArray
-
 class Float64Publisher(RosNode):
-    """ A ROS2 node for teleoperating a joint using a Float64.
+    """A ROS2 node for teleoperating one joint with a velocity command.
     Originally designed to affect an axis for a joint's rotation. """
 
     def __init__(self, name: str, joint_name: str, link_name: str, topic: str, key_bindings: dict):
         super().__init__(name)
-        self.publisher = self.create_publisher(Float64, topic, 10)
+        self.publisher = self.create_publisher(Float64MultiArray, topic, 10)
 
         self.key_bindings = key_bindings
         self.joint_name = joint_name
@@ -83,8 +81,8 @@ class Float64Publisher(RosNode):
 
         self.current_velocity = velocity
 
-        msg = Float64()
-        msg.data = velocity
+        msg = Float64MultiArray()
+        msg.data = [velocity]
         self.publisher.publish(msg)
 
     def set_margins(self, lower: float, upper: float):
@@ -197,7 +195,7 @@ def main():
             name='arm_teleop',
             link_name='upper_arm',
             joint_name='upper_arm_joint',
-            topic='arm/boom_cmd',
+            topic='/arm_controller/commands',
             key_bindings={'8':-0.5, '2':0.5, '5': 0.0 }  # Up, Down, Stop
         )
         upper_arm_node.set_margins(lower=-1.0, upper=1.0)
@@ -209,7 +207,7 @@ def main():
             name='chassis_teleop',
             link_name='chassis',
             joint_name='chassis_joint',
-            topic='chassis/yaw_cmd',
+            topic='/chassis_controller/commands',
             key_bindings={'4':0.5, '6':-0.5, '5':0.0 }  # Left, Right, Stop
         )
         Nodes.append(chassis_node)
