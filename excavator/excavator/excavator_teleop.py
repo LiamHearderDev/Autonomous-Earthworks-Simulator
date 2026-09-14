@@ -28,14 +28,14 @@ import termios  # POSIX terminal control library
 import tty      # POSIX terminal control library
 
 import rclpy    # Python library for ROS 2
-from rclpy.node import Node
+from rclpy.node import Node as RosNode
 from std_msgs.msg import Float64
 
 from sensor_msgs.msg import JointState  # For receiving data from the Joints (for margins)
 
 
 
-class Float64Publisher(Node):
+class Float64Publisher(RosNode):
     """ A ROS2 node for teleoperating a joint using a Float64.
     Originally designed to affect an axis for a joint's rotation. """
 
@@ -136,10 +136,10 @@ class GravityCompensator:
 
         self.gz_node = GzNode()
         self.publisher = self.gz_node.advertise(
-            "/world/excavator_empty/wrench/persistent",
-            EntityWrench.DESCRIPTOR.full_name,
+            "/world/excavator/wrench/persistent",
+            EntityWrench,
         )
-
+        
         # Used to find the index of the target joint in /joint_states
         self.message_index = None
 
@@ -147,12 +147,12 @@ class GravityCompensator:
         return self.mass * self.gravity * self.r_com * math.cos(theta_rad)
 
     def joint_state_callback(self, msg):
-        theta: float = self.get_angle(msg)     # TODO extract from /joint_states 
+        theta: float = self.get_angle(msg)
         torque = self.gravity_torque(theta)
 
         wrench = EntityWrench()
         wrench.entity.name = self.link_name
-        wrench.entity.type = 3
+        wrench.entity.type = 3                  # TODO: try 2 and 3
         wrench.wrench.torque.y = torque
         self.publisher.publish(wrench)
 
@@ -183,34 +183,49 @@ def get_key():
 
 def main():
     settings = termios.tcgetattr(sys.stdin)
-    tty.setcbreak(sys.stdin.fileno())
 
-    rclpy.init()
+    try:
+        tty.setcbreak(sys.stdin.fileno())
 
-    # ====== Set up all publishing nodes ====== #
-    Nodes: list[Node] = []
+        rclpy.init()
 
-    # Upper arm - Pitch
-    upper_arm_node = Float64Publisher(
-        name='arm_teleop',
-        link_name='upper_arm',
-        joint_name='upper_arm_joint',
-        topic='arm/boom_cmd',
-        key_bindings={'8':-0.5, '2':0.5, '5': 0.0 }  # Up, Down, Stop
-    )
-    upper_arm_node.set_margins(lower=-1.0, upper=1.0)
-    upper_arm_node.start_gravity_compensator(link_mass=1.0, r_com=1.0)
-    Nodes.append(upper_arm_node)
+        # ====== Set up all publishing nodes ====== #
+        Nodes: list[RosNode] = []
 
-    # Chassis - Yaw
-    chassis_node = Float64Publisher(
-        name='chassis_teleop',
-        link_name='chassis',
-        joint_name='chassis_joint',
-        topic='chassis/yaw_cmd',
-        key_bindings={'4':0.5, '6':-0.5, '5':0.0 }  # Left, Right, Stop
-    )
-    Nodes.append(chassis_node)
+        # Upper arm - Pitch
+        upper_arm_node = Float64Publisher(
+            name='arm_teleop',
+            link_name='upper_arm',
+            joint_name='upper_arm_joint',
+            topic='arm/boom_cmd',
+            key_bindings={'8':-0.5, '2':0.5, '5': 0.0 }  # Up, Down, Stop
+        )
+        upper_arm_node.set_margins(lower=-1.0, upper=1.0)
+        upper_arm_node.start_gravity_compensator(link_mass=1.0, r_com=1.0)
+        Nodes.append(upper_arm_node)
+
+        # Chassis - Yaw
+        chassis_node = Float64Publisher(
+            name='chassis_teleop',
+            link_name='chassis',
+            joint_name='chassis_joint',
+            topic='chassis/yaw_cmd',
+            key_bindings={'4':0.5, '6':-0.5, '5':0.0 }  # Left, Right, Stop
+        )
+        Nodes.append(chassis_node)
+    except Exception as e:
+        print("Exeception occurred... Exiting teleop.")
+        print(e)
+        print("-"*20)
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+
+        for node in Nodes:
+            node.publish(0.0)
+            node.destroy_node()
+
+        if rclpy.ok():
+            rclpy.shutdown()
+
 
 
     # ====== Prints the explanation / controls to the terminal ====== #

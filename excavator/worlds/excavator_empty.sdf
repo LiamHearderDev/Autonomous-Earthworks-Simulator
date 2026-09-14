@@ -57,11 +57,11 @@
           <topic>cmd_vel</topic>
       </plugin>
 
-      <!-- Apply Link Wrench System -->
-      <plugin filename="gz-sim-apply-link-wrench-system"
-            name="gz::sim::systems::ApplyLinkWrench">
-      </plugin>
     </gui>
+
+    <!-- Simulation systems belong directly under the world, not under gui. -->
+    <plugin filename="gz-sim-apply-link-wrench-system"
+    name="gz::sim::systems::ApplyLinkWrench"/>
 
     <model name='ground_plane'>
       <static>true</static>
