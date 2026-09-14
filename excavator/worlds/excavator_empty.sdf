@@ -56,6 +56,11 @@
           </gz-gui>
           <topic>cmd_vel</topic>
       </plugin>
+
+      <!-- Apply Link Wrench System -->
+      <plugin filename="gz-sim-apply-link-wrench-system"
+            name="gz::sim::systems::ApplyLinkWrench">
+      </plugin>
     </gui>
 
     <model name='ground_plane'>

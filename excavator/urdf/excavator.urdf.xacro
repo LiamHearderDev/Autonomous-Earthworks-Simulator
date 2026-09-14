@@ -310,17 +310,19 @@
   <!-- ================= JOINT CONTROLLER PLUGIN ================= -->
   <gazebo>
     <!-- UPPER ARM PITCH -->
-    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+    <plugin filename="gz-sim-joint-controller-system" 
+            name="gz::sim::systems::JointController">
       <joint_name>upper_arm_joint</joint_name>
       <topic>/model/excavator/joint/upper_arm_joint/cmd_vel</topic>
-      <use_force_commands>false</use_force_commands>
-      <p_gain>3000.0</p_gain>   <!-- Used to correct differences in expected force and actual force. Higher = more correction. -->
-      <i_gain>10.0</i_gain>     <!-- Used to correct small persistent errors that P alone doesn't fix. -->
+      <use_force_commands>true</use_force_commands>
+      <p_gain>30000.0</p_gain>   <!-- Used to correct differences in expected force and actual force. Higher = more correction. -->
+      <i_gain>100.0</i_gain>     <!-- Used to correct small persistent errors that P alone doesn't fix. -->
       <d_gain>10.0</d_gain>
     </plugin>
 
     <!-- CHASSIS ROTATION -->
-    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+    <plugin filename="gz-sim-joint-controller-system" 
+            name="gz::sim::systems::JointController">
       <joint_name>chassis_joint</joint_name>
       <topic>/model/excavator/joint/chassis_joint/cmd_vel</topic>
       <use_force_commands>false</use_force_commands>
@@ -330,9 +332,10 @@
     </plugin>
   </gazebo>
 
-  <!-- ================= ROBOT AUTO DISABLE ================= -->
+  <!-- ================= JOINT PUBLISHER ================= -->
   <gazebo> 
-    <!-- This stops joints from "going to sleep". Maybe fixes limit issues. -->
-    <allow_auto_disable>false</allow_auto_disable>
+    <plugin filename="gz-sim-joint-state-publisher-system" 
+            name="gz::sim::systems::JointStatePublisher">
+    </plugin>
   </gazebo>
 </robot>
