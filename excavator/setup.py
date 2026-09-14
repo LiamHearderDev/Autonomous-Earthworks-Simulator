@@ -41,6 +41,7 @@ setup(
         'console_scripts': [
             # Add here any Python nodes you write
             'arm_teleop = excavator.arm_teleop:main',
+            'excavator_teleop = excavator.excavator_teleop:main',
         ],
     },
 )

@@ -62,12 +62,12 @@
       </geometry>
       <material name="blue"/>
     </visual>
-    <collision>
+    <!-- <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="1.5 1.0 1.0"/>
       </geometry>
-    </collision>
+    </collision> -->
   </link>
 
   <joint name="chassis_joint" type="revolute">
@@ -108,7 +108,7 @@
     <child link="upper_arm"/>
     <origin xyz="1.0 0 0.25" rpy="0 0.785398 0"/> <!-- Front + angled 45 degrees. -->
     <axis xyz="0 1 0"/>
-    <limit lower="-1.0" upper="1.0" effort="1000" velocity="0.5" />
+    <limit lower="-0.8" upper="0.8" effort="1000" velocity="0.5" />
     <safety_controller soft_lower_limit="-1.0" soft_upper_limit="1.0" k_velocity="1.0" />
     <dynamics damping="5.7" friction="50.0"/>
   </joint>
@@ -328,5 +328,11 @@
       <i_gain>10.0</i_gain>     <!-- Used to correct small persistent errors that P alone doesn't fix. -->
       <d_gain>10.0</d_gain>
     </plugin>
+  </gazebo>
+
+  <!-- ================= ROBOT AUTO DISABLE ================= -->
+  <gazebo> 
+    <!-- This stops joints from "going to sleep". Maybe fixes limit issues. -->
+    <allow_auto_disable>false</allow_auto_disable>
   </gazebo>
 </robot>

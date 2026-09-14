@@ -34,9 +34,6 @@ from std_msgs.msg import Float64
 
 from sensor_msgs.msg import JointState  # For receiving data from the Joints (for margins)
 
-import threading        # So callbacks run on a different thread, since I/O blocks
-from rclpy.executors import MultiThreadedExecutor       # So all nodes run on same executor
-
 
 class Float64Publisher(Node):
     """ A ROS2 node for teleoperating a joint using a Float64.
@@ -68,6 +65,9 @@ class Float64Publisher(Node):
 
     def publish(self, velocity):
         """ Used to publish messages on a topic. """
+        if not rclpy.ok():
+            return
+
         if (self.joint_position is not None) and (self.adhere_to_margins == True):
             if (self.joint_position >= self.upper_margin) and (velocity > 0):
                 print("APPROACHING UPPER LIMIT")
@@ -146,17 +146,6 @@ def main():
     Nodes.append(chassis_node)
 
 
-    # ====== Ensure all nodes receive callbacks (on a different thread) ====== #
-    executor = MultiThreadedExecutor()
-    for node in Nodes:
-        executor.add_node(node)
-    executor_thread = threading.Thread(
-        target=executor.spin,
-        daemon=True
-    )
-    executor_thread.start()
-
-
     # ====== Prints the explanation / controls to the terminal ====== #
     print(__doc__)
 
@@ -164,6 +153,10 @@ def main():
     # ====== MAIN LOOP ====== #
     try:
         while True:
+
+            for node in Nodes:
+                rclpy.spin_once(node, timeout_sec=0.0)
+
             key = get_key()
             if (key is None):
                 time.sleep(0.01)
@@ -177,23 +170,25 @@ def main():
             for node in Nodes:
                 if key in node.key_bindings:
                     node.publish(velocity=node.key_bindings[key])
-
+    except KeyboardInterrupt as e:
+        print("Keyboard Interrupt... Exiting teleop.")
+        print("-"*20)
     except Exception as e:
+        print("Exeception occurred... Exiting teleop.")
         print(e)
+        print("-"*20)
     finally:
-        # Always stop the arm on exit, don't leave it moving
 
+        # Always stop joints on exit, don't leave them moving
         for node in Nodes:
             node.publish(0.0)
-
-        executor.shutdown()
-
-        for node in Nodes:
             node.destroy_node()
 
-        rclpy.shutdown()
-        executor_thread.join(timeout=1.0)
+
+        if rclpy.ok():
+            rclpy.shutdown()
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+        
 
 
 if __name__ == '__main__':
