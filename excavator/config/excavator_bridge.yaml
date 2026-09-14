@@ -28,17 +28,3 @@
   ros_type_name: "sensor_msgs/msg/JointState"
   gz_type_name: "gz.msgs.Model"
   direction: GZ_TO_ROS
-
-# ros topic used for controlling the excavator arm
-- ros_topic_name: "arm/boom_cmd"
-  gz_topic_name: "/model/excavator/joint/upper_arm_joint/cmd_vel"
-  ros_type_name: "std_msgs/msg/Float64"
-  gz_type_name: "gz.msgs.Double"
-  direction: ROS_TO_GZ
-
-# ros topic used for controlling the excavator chassis
-- ros_topic_name: "chassis/yaw_cmd"
-  gz_topic_name: "/model/excavator/joint/chassis_joint/cmd_vel"
-  ros_type_name: "std_msgs/msg/Float64"
-  gz_type_name: "gz.msgs.Double"
-  direction: ROS_TO_GZ

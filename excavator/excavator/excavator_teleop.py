@@ -33,7 +33,7 @@ from std_msgs.msg import Float64
 
 from sensor_msgs.msg import JointState  # For receiving data from the Joints (for margins)
 
-
+# TODO: change this to use Float64MultiArray
 
 class Float64Publisher(RosNode):
     """ A ROS2 node for teleoperating a joint using a Float64.
@@ -139,7 +139,7 @@ class GravityCompensator:
             "/world/excavator/wrench/persistent",
             EntityWrench,
         )
-        
+
         # Used to find the index of the target joint in /joint_states
         self.message_index = None
 

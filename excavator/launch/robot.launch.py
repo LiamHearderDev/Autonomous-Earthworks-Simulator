@@ -64,6 +64,40 @@ def generate_launch_description():
         parameters=[robot_description, {"use_sim_time": use_sim_time}],
     )
 
+    # ---- Activating ROS2 controllers ---------------------------------------
+    joint_state_broadcaster = Node(
+    package="controller_manager",
+    executable="spawner",
+    arguments=[
+        "joint_state_broadcaster",
+        "--controller-manager",
+        "/controller_manager",
+    ],
+    output="screen",
+)
+
+    arm_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "arm_controller",
+            "--controller-manager",
+            "/controller_manager",
+        ],
+        output="screen",
+    )
+
+    chassis_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "chassis_controller",
+            "--controller-manager",
+            "/controller_manager",
+        ],
+        output="screen",
+    )
+
     # ---- Start Gazebo (gz sim) via ros_gz_sim's launch file ----------------
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -107,5 +141,8 @@ def generate_launch_description():
             gz_sim,
             spawn_robot,
             bridge,
+            joint_state_broadcaster,
+            arm_controller,
+            chassis_controller
         ]
     )

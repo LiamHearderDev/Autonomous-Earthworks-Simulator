@@ -29,6 +29,10 @@ setup(
         # Meshes, if your URDF references any (STL/DAE etc.)
         (os.path.join('share', package_name, 'meshes'),
             glob('meshes/*')),
+
+        # For ROS2 model configurations
+        (os.path.join('share', package_name, 'model'),
+            glob('model/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

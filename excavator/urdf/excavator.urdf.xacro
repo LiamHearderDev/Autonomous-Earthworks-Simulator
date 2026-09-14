@@ -312,29 +312,7 @@
   </gazebo>
 
   <!-- ================= JOINT CONTROLLER PLUGIN ================= -->
-  <gazebo>
-    <!-- UPPER ARM PITCH -->
-    <plugin filename="gz-sim-joint-controller-system" 
-            name="gz::sim::systems::JointController">
-      <joint_name>upper_arm_joint</joint_name>
-      <topic>/model/excavator/joint/upper_arm_joint/cmd_vel</topic>
-      <use_force_commands>false</use_force_commands>
-      <p_gain>50.0</p_gain>
-      <i_gain>0.0</i_gain>
-      <d_gain>5.0</d_gain>
-    </plugin>
-
-    <!-- CHASSIS ROTATION -->
-    <plugin filename="gz-sim-joint-controller-system" 
-            name="gz::sim::systems::JointController">
-      <joint_name>chassis_joint</joint_name>
-      <topic>/model/excavator/joint/chassis_joint/cmd_vel</topic>
-      <use_force_commands>false</use_force_commands>
-      <p_gain>100.0</p_gain>   <!-- Used to correct differences in expected force and actual force. Higher = more correction. -->
-      <i_gain>10.0</i_gain>     <!-- Used to correct small persistent errors that P alone doesn't fix. -->
-      <d_gain>10.0</d_gain>
-    </plugin>
-  </gazebo>
+  <!-- deleted for now -->
 
   <!-- ================= JOINT PUBLISHER ================= -->
   <gazebo> 
