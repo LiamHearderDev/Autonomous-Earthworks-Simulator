@@ -23,22 +23,22 @@
   <link name="chassis">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <mass value="5"/>
-      <inertia ixx="0.095329" ixy="0" ixz="0"
-               iyy="0.381317" iyz="0"
-               izz="0.476646"/>
+      <mass value="62.4"/>
+      <inertia ixx="40.352" ixy="0" ixz="0"
+               iyy="125.008" iyz="0"
+               izz="154.96"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="2.0 1.0 0.5"/>
+        <box size="4.8 2.6 1"/>
       </geometry>
       <material name="blue"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="2.0 1.0 0.5"/>
+        <box size="4.8 2.6 1"/>
       </geometry>
     </collision>
   </link>
@@ -48,29 +48,29 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="1.0"/>
-      <!-- Inertia for the 1 kg, 1.5 x 1.5 x 0.2 m blade box. -->
-      <inertia ixx="0.190833" ixy="0" ixz="0"
-               iyy="0.190833" iyz="0"
-               izz="0.375"/>
+      <!-- Inertia for the 1 kg, 0.2 x 2.6 x 1.0 m blade box. -->
+      <inertia ixx="0.646667" ixy="0" ixz="0"
+               iyy="0.086667" iyz="0"
+               izz="0.566667"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="1.5 1.5 0.2"/>
+        <box size="0.2 2.6 1.0"/>
       </geometry>
       <material name="yellow"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="1.5 1.5 0.2"/>
+        <box size="0.2 2.6 1.0"/>
       </geometry>
     </collision>
   </link>
 
   <!-- Place the blade ahead of the chassis without overlapping it. -->
   <joint name="chassis_to_blade" type="prismatic">
-    <origin xyz="1.85 0 0" rpy="0 0 0"/>
+    <origin xyz="2.5 0 0" rpy="0 0 0"/>
     <parent link="chassis"/>
     <child link="blade"/>
     <!-- Slide vertically; positive displacement raises the blade. -->
@@ -84,28 +84,28 @@
   <link name="back_left_wheel">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <mass value="1.0"/>
-      <inertia ixx="0.043333" ixy="0" ixz="0"
-               iyy="0.043333" iyz="0"
-               izz="0.08"/>
+      <mass value="10.0"/>
+      <inertia ixx="1.808333" ixy="0" ixz="0"
+               iyy="1.808333" iyz="0"
+               izz="3.2"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.8" length="0.5"/>
       </geometry>
       <material name="red"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.8" length="0.5"/>
       </geometry>
     </collision>
   </link>
 
   <joint name="back_left_wheel_joint" type="continuous">
-    <origin xyz="-0.5 0.6 0" rpy="-1.5707 0 0"/>
+    <origin xyz="-2 1.65 0" rpy="-1.5707 0 0"/>
     <parent link="chassis"/>
     <child link="back_left_wheel"/>
     <axis xyz="0 0 1"/>
@@ -129,28 +129,28 @@
   <link name="back_right_wheel">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <mass value="1.0"/>
-      <inertia ixx="0.043333" ixy="0" ixz="0"
-               iyy="0.043333" iyz="0"
-               izz="0.08"/>
+      <mass value="10.0"/>
+      <inertia ixx="1.808333" ixy="0" ixz="0"
+               iyy="1.808333" iyz="0"
+               izz="3.2"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.8" length="0.5"/>
       </geometry>
       <material name="red"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.8" length="0.5"/>
       </geometry>
     </collision>
   </link>
 
   <joint name="back_right_wheel_joint" type="continuous">
-    <origin xyz="-0.5 -0.6 0" rpy="-1.5707 0 0"/>
+    <origin xyz="-2 -1.65 0" rpy="-1.5707 0 0"/>
     <parent link="chassis"/>
     <child link="back_right_wheel"/>
     <axis xyz="0 0 1"/>
@@ -174,28 +174,28 @@
   <link name="front_left_wheel">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <mass value="1.0"/>
-      <inertia ixx="0.043333" ixy="0" ixz="0"
-               iyy="0.043333" iyz="0"
-               izz="0.08"/>
+      <mass value="10.0"/>
+      <inertia ixx="1.808333" ixy="0" ixz="0"
+               iyy="1.808333" iyz="0"
+               izz="3.2"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.8" length="0.5"/>
       </geometry>
       <material name="red"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.8" length="0.5"/>
       </geometry>
     </collision>
   </link>
 
   <joint name="front_left_wheel_joint" type="continuous">
-    <origin xyz="0.5 0.6 0" rpy="-1.5707 0 0"/>
+    <origin xyz="2 1.65 0" rpy="-1.5707 0 0"/>
     <parent link="chassis"/>
     <child link="front_left_wheel"/>
     <axis xyz="0 0 1"/>
@@ -219,28 +219,28 @@
   <link name="front_right_wheel">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <mass value="1.0"/>
-      <inertia ixx="0.043333" ixy="0" ixz="0"
-               iyy="0.043333" iyz="0"
-               izz="0.08"/>
+      <mass value="10.0"/>
+      <inertia ixx="1.808333" ixy="0" ixz="0"
+               iyy="1.808333" iyz="0"
+               izz="3.2"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.8" length="0.5"/>
       </geometry>
       <material name="red"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.8" length="0.5"/>
       </geometry>
     </collision>
   </link>
 
   <joint name="front_right_wheel_joint" type="continuous">
-    <origin xyz="0.5 -0.6 0" rpy="-1.5707 0 0"/>
+    <origin xyz="2 -1.65 0" rpy="-1.5707 0 0"/>
     <parent link="chassis"/>
     <child link="front_right_wheel"/>
     <axis xyz="0 0 1"/>
@@ -267,8 +267,8 @@
       <left_joint>front_left_wheel_joint</left_joint>
       <right_joint>back_right_wheel_joint</right_joint>
       <right_joint>front_right_wheel_joint</right_joint>
-      <wheel_separation>1.2</wheel_separation>
-      <wheel_radius>0.4</wheel_radius>
+      <wheel_separation>3.3</wheel_separation>
+      <wheel_radius>0.8</wheel_radius>
       <odom_publish_frequency>1</odom_publish_frequency>
       <topic>cmd_vel</topic>
       <odom_topic>odom</odom_topic>

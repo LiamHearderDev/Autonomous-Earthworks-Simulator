@@ -43,3 +43,18 @@ build tools; you do not write or maintain them. His project creates these
 too when built. The command above disables colcon's saved build logs.
 
 The project is currently left as source files only. Build it before launching.
+
+## Keyboard controls
+
+After launching the simulator, open a second terminal and run:
+
+```bash
+cd bulldozer
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+ros2 run bulldozer keyboard_teleop
+```
+
+Use `W`/`S` to drive, `A`/`D` to turn, Space or `X` to stop, `R`/`F` to
+raise or lower the blade, and `Q` to quit. Hold a movement key to keep the
+bulldozer moving; it stops automatically when movement input times out.
