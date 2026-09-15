@@ -54,11 +54,6 @@ class Float64Publisher(RosNode):
             10
         )
 
-        # Margins are used to dampen, so the joint never reaches the real limit.
-        self.adhere_to_margins = False
-        self.lower_margin = -1.5708
-        self.upper_margin = 1.5708
-
         # The joint's current velocity
         self.current_velocity = 0.0
 
@@ -84,12 +79,6 @@ class Float64Publisher(RosNode):
         msg = Float64MultiArray()
         msg.data = [velocity]
         self.publisher.publish(msg)
-
-    def set_margins(self, lower: float, upper: float):
-        """ Used to define soft limits for joints. """
-        self.adhere_to_margins = True
-        self.lower_margin = lower
-        self.upper_margin = upper
 
     def joint_state_callback(self, message):
         """ Update this node based on the joint/link information. """
@@ -198,8 +187,7 @@ def main():
             topic='/arm_controller/commands',
             key_bindings={'8':-0.5, '2':0.5, '5': 0.0 }  # Up, Down, Stop
         )
-        upper_arm_node.set_margins(lower=-1.0, upper=1.0)
-        upper_arm_node.start_gravity_compensator(link_mass=1.0, r_com=1.0)
+        # upper_arm_node.start_gravity_compensator(link_mass=1.0, r_com=1.0)
         Nodes.append(upper_arm_node)
 
         # Chassis - Yaw
@@ -211,6 +199,7 @@ def main():
             key_bindings={'4':0.5, '6':-0.5, '5':0.0 }  # Left, Right, Stop
         )
         Nodes.append(chassis_node)
+
     except Exception as e:
         print("Exeception occurred... Exiting teleop.")
         print(e)

@@ -30,11 +30,6 @@ def generate_launch_description():
 
     pkg_share = get_package_share_directory(pkg_name)
 
-    # Set the world path, through the package share directory
-    world_path = PathJoinSubstitution(
-        [ FindPackageShare(pkg_name), "worlds", "excavator_empty.sdf" ]
-    )
-
     # ---- Launch arguments -------------------------------------------------
     world_arg = DeclareLaunchArgument(
         "world",
@@ -105,7 +100,7 @@ def generate_launch_description():
                 [FindPackageShare("ros_gz_sim"), "launch", "gz_sim.launch.py"]
             )
         ),
-        launch_arguments={"gz_args": ["-r ", world]}.items(),
+        launch_arguments={"gz_args": ["-r -v4 ", world], 'on_exit_shutdown': 'true'}.items(),
     )
 
     # ---- Spawn the robot from /robot_description into Gazebo ---------------
