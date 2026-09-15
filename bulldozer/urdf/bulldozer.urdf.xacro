@@ -48,7 +48,7 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="1.0"/>
-      <!-- Inertia for the 1 kg, 1.5 x 1.5 x 0.2 m blade box. -->
+      <!-- Inertia for the 1 kg, 1.5  x 1.5 x 0.2 m blade box. -->
       <inertia ixx="0.190833" ixy="0" ixz="0"
                iyy="0.190833" iyz="0"
                izz="0.375"/>
