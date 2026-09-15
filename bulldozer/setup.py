@@ -43,7 +43,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            # Add here any Python nodes you write
+            'keyboard_teleop = bulldozer.keyboard_teleop:main',
         ],
     },
 )
