@@ -17,8 +17,8 @@ Other Controls:
     q - quit
     Ctrl-C - quit
 
-Publishes one-element std_msgs/Float64MultiArray messages to the
-ros2_control forward-command controllers.
+Publishes Float64MultiArray velocity commands for the chassis and
+JointTrajectory position commands for the upper arm.
 """
 
 import select   # For non-blocked I/O
@@ -30,8 +30,10 @@ import tty      # POSIX terminal control library
 import rclpy    # Python library for ROS 2
 from rclpy.node import Node as RosNode
 from std_msgs.msg import Float64MultiArray
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 from sensor_msgs.msg import JointState  # For receiving data from the Joints (for margins)
+
 
 class Float64Publisher(RosNode):
     """A ROS2 node for teleoperating one joint with a velocity command.
@@ -90,6 +92,52 @@ class Float64Publisher(RosNode):
         if (self.gravity_compensator is not None):
             self.gravity_compensator.joint_state_callback(message)
 ### Float64Publisher ###
+
+
+class JointTrajectoryPublisher(RosNode):
+    """Command a joint toward an endpoint until a new target is sent."""
+
+    def __init__(self, name: str, joint_name: str, topic: str, key_bindings: dict):
+        super().__init__(name)
+        self.publisher = self.create_publisher(JointTrajectory, topic, 10)
+        self.joint_name = joint_name
+        self.key_bindings = key_bindings
+        self.lower_limit = -0.8
+        self.upper_limit = 0.8
+        self.joint_position = None
+        self.create_subscription(
+            JointState,
+            'joint_states',
+            self.joint_state_callback,
+            10,
+        )
+
+    def joint_state_callback(self, message):
+        if self.joint_name in message.name:
+            self.joint_position = message.position[message.name.index(self.joint_name)]
+
+    def publish(self, direction):
+        if not rclpy.ok() or self.joint_position is None:
+            return
+
+        trajectory = JointTrajectory()
+        trajectory.joint_names = [self.joint_name]
+
+        point = JointTrajectoryPoint()
+        if direction > 0.0:
+            target_position = self.upper_limit
+        elif direction < 0.0:
+            target_position = self.lower_limit
+        else:
+            target_position = self.joint_position
+
+        point.positions = [target_position]
+        point.time_from_start.sec = 0
+        point.time_from_start.nanosec = 100000000
+        trajectory.points = [point]
+        self.publisher.publish(trajectory)
+
+### JointTrajectoryPublisher ###
 
 
 # === Imports for GravityCompensator === #
@@ -180,11 +228,10 @@ def main():
         Nodes: list[RosNode] = []
 
         # Upper arm - Pitch
-        upper_arm_node = Float64Publisher(
+        upper_arm_node = JointTrajectoryPublisher(
             name='arm_teleop',
-            link_name='upper_arm',
             joint_name='upper_arm_joint',
-            topic='/arm_controller/commands',
+            topic='/arm_controller/joint_trajectory',
             key_bindings={'8':-0.5, '2':0.5, '5': 0.0 }  # Up, Down, Stop
         )
         # upper_arm_node.start_gravity_compensator(link_mass=1.0, r_com=1.0)
@@ -238,7 +285,7 @@ def main():
             # If the key matches one of our nodes, publish the value
             for node in Nodes:
                 if key in node.key_bindings:
-                    node.publish(velocity=node.key_bindings[key])
+                    node.publish(node.key_bindings[key])
     except KeyboardInterrupt as e:
         print("Keyboard Interrupt... Exiting teleop.")
         print("-"*20)

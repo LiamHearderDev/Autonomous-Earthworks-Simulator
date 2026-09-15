@@ -84,7 +84,7 @@ source install/setup.bash
 ros2 launch excavator robot.launch.py
 ```
 
-### 10. In a separate terminal, launch the arm_teleop control application:
+### 10. In a separate terminal, launch the excavator_teleop control application:
 ```bash
 cd path/to/Autonomous-Earthworks-Simulator/excavator
 
@@ -92,5 +92,5 @@ source /opt/ros/jazzy/setup.bash
 
 source install/setup.bash
 
-ros2 run excavator arm_teleop
+ros2 run excavator excavator_teleop
 ```
