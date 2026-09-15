@@ -38,6 +38,7 @@ sudo apt install -y \
     ros-jazzy-xacro \
     ros-jazzy-teleop-twist-keyboard \
     ros-jazzy-ros2launch \
+    ros-jazzy-ros2run \
     ros-jazzy-gz-ros2-control \
     ros-jazzy-ros2-controllers \
     ros-jazzy-rviz2 \

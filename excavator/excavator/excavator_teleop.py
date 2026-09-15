@@ -4,7 +4,11 @@ Keyboard teleop for the excavator. Designed to be operated using the
 numpad.
 
 Movement Controls:
-
+    W - Forward
+    A - Left
+    S - Back
+    D - Right
+    X - Stop
 
 Arm Controls:
     8 - Pitch up
@@ -32,10 +36,13 @@ import tty      # POSIX terminal control library
 
 import rclpy    # Python library for ROS 2
 from rclpy.node import Node as RosNode
+
 from std_msgs.msg import Float64MultiArray
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from geometry_msgs.msg import Twist
 
 from sensor_msgs.msg import JointState  # For receiving data from the Joints
+
 
 
 class Float64Publisher(RosNode):
@@ -59,18 +66,13 @@ class Float64Publisher(RosNode):
             10
         )
 
-        # The joint's current velocity
-        self.current_velocity = 0.0
-
-    def publish(self, velocity):
+    def publish(self, value):
         """ Used to publish messages on a topic. """
         if not rclpy.ok():
             return
 
-        self.current_velocity = velocity
-
         msg = Float64MultiArray()
-        msg.data = [velocity]
+        msg.data = [value]
         self.publisher.publish(msg)
 
     def joint_state_callback(self, message):
@@ -127,6 +129,29 @@ class JointTrajectoryPublisher(RosNode):
 ### JointTrajectoryPublisher ###
 
 
+class TwistPublisher(RosNode):
+    def __init__(self, name: str, topic: str, key_bindings: dict):
+        super().__init__(name)
+
+        self.publisher = self.create_publisher(Twist, topic, 10)
+
+        self.key_bindings = key_bindings
+
+    def publish(self, value):
+        """Publish a (linear_x, angular_z) differential-drive command."""
+        if not rclpy.ok():
+            return
+
+        msg = Twist()
+        if isinstance(value, (int, float)):
+            linear_x, angular_z = 0.0, 0.0
+        else:
+            linear_x, angular_z = value
+        msg.linear.x = linear_x
+        msg.angular.z = angular_z
+        self.publisher.publish(msg)
+### TwistPublisher ###
+
 
 def get_key():
     """ Get a single keypress from the terminal. """
@@ -148,7 +173,21 @@ def main():
         # ====== Set up all publishing nodes ====== #
         Nodes: list[RosNode] = []
 
-        # Upper arm - Pitch
+        # Differential Drive - Twist
+        drive_node = TwistPublisher(
+            name='drive_teleop',
+            topic='/cmd_vel',
+            key_bindings={
+                'w': (0.5, 0.0),
+                'a': (0.0, 0.5),
+                's': (-0.5, 0.0),
+                'd': (0.0, -0.5),
+                'x': (0.0, 0.0),
+            },
+        )
+        Nodes.append(drive_node)
+
+        # Upper arm - Position
         upper_arm_node = JointTrajectoryPublisher(
             name='arm_teleop',
             joint_name='upper_arm_joint',
@@ -181,11 +220,8 @@ def main():
         if rclpy.ok():
             rclpy.shutdown()
 
-
-
     # ====== Prints the explanation / controls to the terminal ====== #
     print(__doc__)
-
 
     # ====== MAIN LOOP ====== #
     try:
