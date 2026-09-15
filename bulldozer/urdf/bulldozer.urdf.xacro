@@ -48,29 +48,29 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="1.0"/>
-      <!-- Inertia for the 1 kg, 1.5  x 1.5 x 0.2 m blade box. -->
-      <inertia ixx="0.190833" ixy="0" ixz="0"
-               iyy="0.190833" iyz="0"
-               izz="0.375"/>
+      <!-- Inertia for the 1 kg, 0.2 x 2.6 x 1.0 m blade box. -->
+      <inertia ixx="0.646667" ixy="0" ixz="0"
+               iyy="0.086667" iyz="0"
+               izz="0.566667"/>
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="1.5 1.5 0.2"/>
+        <box size="0.2 2.6 1.0"/>
       </geometry>
       <material name="yellow"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="1.5 1.5 0.2"/>
+        <box size="0.2 2.6 1.0"/>
       </geometry>
     </collision>
   </link>
 
   <!-- Place the blade ahead of the chassis without overlapping it. -->
   <joint name="chassis_to_blade" type="prismatic">
-    <origin xyz="3.15 0 0" rpy="0 0 0"/>
+    <origin xyz="2.5 0 0" rpy="0 0 0"/>
     <parent link="chassis"/>
     <child link="blade"/>
     <!-- Slide vertically; positive displacement raises the blade. -->
