@@ -3,6 +3,9 @@
 Keyboard teleop for the excavator. Designed to be operated using the 
 numpad.
 
+Movement Controls:
+
+
 Arm Controls:
     8 - Pitch up
     5 - Stop
@@ -32,7 +35,7 @@ from rclpy.node import Node as RosNode
 from std_msgs.msg import Float64MultiArray
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
-from sensor_msgs.msg import JointState  # For receiving data from the Joints (for margins)
+from sensor_msgs.msg import JointState  # For receiving data from the Joints
 
 
 class Float64Publisher(RosNode):
@@ -59,18 +62,6 @@ class Float64Publisher(RosNode):
         # The joint's current velocity
         self.current_velocity = 0.0
 
-        # Set Gravity Compensator to None, so we don't use it
-        self.gravity_compensator = None
-
-
-    def start_gravity_compensator(self, link_mass: float, r_com: float):
-        self.gravity_compensator = GravityCompensator(
-            self.link_name,
-            self.joint_name,
-            link_mass,
-            r_com
-        )
-
     def publish(self, velocity):
         """ Used to publish messages on a topic. """
         if not rclpy.ok():
@@ -88,9 +79,6 @@ class Float64Publisher(RosNode):
             return
         index = message.name.index(self.joint_name)
         self.joint_position = message.position[index]
-
-        if (self.gravity_compensator is not None):
-            self.gravity_compensator.joint_state_callback(message)
 ### Float64Publisher ###
 
 
@@ -136,73 +124,7 @@ class JointTrajectoryPublisher(RosNode):
         point.time_from_start.nanosec = 100000000
         trajectory.points = [point]
         self.publisher.publish(trajectory)
-
 ### JointTrajectoryPublisher ###
-
-
-# === Imports for GravityCompensator === #
-import math
-from gz.transport13 import Node as GzNode
-from gz.msgs10.entity_wrench_pb2 import EntityWrench
-
-class GravityCompensator:
-    """ This class calculates gravity's torque about a joint, and applies
-    a compensating force. Originally designed to stop the excavator arm
-    from being slowly pulled to the ground. 
-    
-    This is only important for boom joints.
-
-    Formula:
-        τ_gravity ≈ m * g * r_com * cos(θ)
-
-        m       =   The link's mass. 
-        g       =   Gravity.
-        r_com   =   Distance from the joint to its center of mass.
-        θ       =   The angle measured from horizontal.
-    """
-
-    def __init__(self, link_name: str, joint_name: str, link_mass: float, r_com: float):
-        self.mass = link_mass
-        self.r_com = r_com
-        self.link_name = link_name
-        self.joint_name = joint_name
-
-        self.gravity = 9.8
-
-        self.gz_node = GzNode()
-        self.publisher = self.gz_node.advertise(
-            "/world/excavator/wrench/persistent",
-            EntityWrench,
-        )
-
-        # Used to find the index of the target joint in /joint_states
-        self.message_index = None
-
-    def gravity_torque(self, theta_rad: float):
-        return self.mass * self.gravity * self.r_com * math.cos(theta_rad)
-
-    def joint_state_callback(self, msg):
-        theta: float = self.get_angle(msg)
-        torque = self.gravity_torque(theta)
-
-        wrench = EntityWrench()
-        wrench.entity.name = self.link_name
-        wrench.entity.type = 3                  # TODO: try 2 and 3
-        wrench.wrench.torque.y = torque
-        self.publisher.publish(wrench)
-
-    def get_angle(self, msg) -> float:
-        """ This is only really relevant for boom joints. """
-        if self.message_index is None:
-            try:
-                self.message_index = msg.name.index(self.joint_name)
-            except ValueError:
-                raise RuntimeError(
-                    f"'{self.joint_name}' not found in /joint_states."
-                    "Check that JointStatePublisher is attached and the bridge is configured."
-                )
-        return msg.position[self.message_index]
-### GravityCompensator ###
 
 
 
@@ -221,7 +143,6 @@ def main():
 
     try:
         tty.setcbreak(sys.stdin.fileno())
-
         rclpy.init()
 
         # ====== Set up all publishing nodes ====== #
