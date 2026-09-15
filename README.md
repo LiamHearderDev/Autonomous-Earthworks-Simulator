@@ -39,6 +39,7 @@ sudo apt install -y \
     ros-jazzy-teleop-twist-keyboard \
     ros-jazzy-ros2launch \
     ros-jazzy-gz-ros2-control \
+    ros-jazzy-ros2-controllers \
     ros-jazzy-rviz2 \
 ```
 Note: `ros-jazzy-teleop-twist-keyboard` is optional and only needed if you want to control the excavator with keyboard input in the terminal.
@@ -84,9 +85,10 @@ ros2 launch excavator robot.launch.py
 ```
 
 ### 10. In a separate terminal, launch the arm_teleop control application:
-First, execute step 8 in the new terminal, then:
 ```bash
 cd path/to/Autonomous-Earthworks-Simulator/excavator
+
+source /opt/ros/jazzy/setup.bash
 
 source install/setup.bash
 
