@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find excavator)/model/parameters.xacro"/>
+
+  <ros2_control name="ExcavatorSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+
+    <joint name="upper_arm_joint">
+      <command_interface name="position">
+        <param name="min">-0.8</param>
+        <param name="max">0.8</param>
+      </command_interface>
+
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="chassis_joint">
+      <command_interface name="velocity">
+        <param name="min">-0.5</param>
+        <param name="max">0.5</param>
+      </command_interface>
+
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+  <gazebo>
+    <plugin
+      filename="libgz_ros2_control-system.so"
+      name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(find excavator)/config/controllers.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+</robot>
