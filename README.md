@@ -9,6 +9,21 @@ excavator.
   keyboard controller.
 - `excavator/` contains the excavator, arm controls, and ROS 2 controllers.
 
+### 1. Configure and build the project:
+```bash
+cmake -S . -B build && cmake --build build
+```
+
+### 2. Navigate to the project directory.
+```bash
+cd /path/to/Autonomous-Earthworks-Simulator
+```
+
+### 3. Set your Gazebo simulation resource path to the working directory:
+```bash
+export GZ_SIM_RESOURCE_PATH=${GZ_SIM_RESOURCE_PATH}:$(pwd)
+```
+
 ## Bulldozer
 
 Build and launch the bulldozer from the repository root:
@@ -72,3 +87,5 @@ ros2 run excavator excavator_teleop
 
 Use numpad `8`/`2` for the arm, numpad `4`/`6` for chassis rotation, `5` to
 stop, and `Q` to quit.
+
+
