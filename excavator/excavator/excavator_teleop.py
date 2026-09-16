@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 """
-Keyboard teleop for the excavator. Designed to be operated using the
+Keyboard teleop for the excavator. Designed to be operated using the 
 numpad.
+
+Movement Controls:
+    W - Forward
+    A - Left
+    S - Back
+    D - Right
+    X - Stop
 
 Arm Controls:
     8 - Pitch up
@@ -29,10 +36,13 @@ import tty      # POSIX terminal control library
 
 import rclpy    # Python library for ROS 2
 from rclpy.node import Node as RosNode
+
 from std_msgs.msg import Float64MultiArray
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from geometry_msgs.msg import Twist
 
-from sensor_msgs.msg import JointState  # For receiving data from the Joints (for margins)
+from sensor_msgs.msg import JointState  # For receiving data from the Joints
+
 
 
 class Float64Publisher(RosNode):
@@ -56,30 +66,13 @@ class Float64Publisher(RosNode):
             10
         )
 
-        # The joint's current velocity
-        self.current_velocity = 0.0
-
-        # Set Gravity Compensator to None, so we don't use it
-        self.gravity_compensator = None
-
-
-    def start_gravity_compensator(self, link_mass: float, r_com: float):
-        self.gravity_compensator = GravityCompensator(
-            self.link_name,
-            self.joint_name,
-            link_mass,
-            r_com
-        )
-
-    def publish(self, velocity):
+    def publish(self, value):
         """ Used to publish messages on a topic. """
         if not rclpy.ok():
             return
 
-        self.current_velocity = velocity
-
         msg = Float64MultiArray()
-        msg.data = [velocity]
+        msg.data = [value]
         self.publisher.publish(msg)
 
     def joint_state_callback(self, message):
@@ -88,9 +81,6 @@ class Float64Publisher(RosNode):
             return
         index = message.name.index(self.joint_name)
         self.joint_position = message.position[index]
-
-        if (self.gravity_compensator is not None):
-            self.gravity_compensator.joint_state_callback(message)
 ### Float64Publisher ###
 
 
@@ -136,74 +126,31 @@ class JointTrajectoryPublisher(RosNode):
         point.time_from_start.nanosec = 100000000
         trajectory.points = [point]
         self.publisher.publish(trajectory)
-
 ### JointTrajectoryPublisher ###
 
 
-# === Imports for GravityCompensator === #
-import math
-from gz.transport13 import Node as GzNode
-from gz.msgs10.entity_wrench_pb2 import EntityWrench
+class TwistPublisher(RosNode):
+    def __init__(self, name: str, topic: str, key_bindings: dict):
+        super().__init__(name)
 
-class GravityCompensator:
-    """ This class calculates gravity's torque about a joint, and applies
-    a compensating force. Originally designed to stop the excavator arm
-    from being slowly pulled to the ground.
+        self.publisher = self.create_publisher(Twist, topic, 10)
 
-    This is only important for boom joints.
+        self.key_bindings = key_bindings
 
-    Formula:
-        τ_gravity ≈ m * g * r_com * cos(θ)
+    def publish(self, value):
+        """Publish a (linear_x, angular_z) differential-drive command."""
+        if not rclpy.ok():
+            return
 
-        m       =   The link's mass.
-        g       =   Gravity.
-        r_com   =   Distance from the joint to its center of mass.
-        θ       =   The angle measured from horizontal.
-    """
-
-    def __init__(self, link_name: str, joint_name: str, link_mass: float, r_com: float):
-        self.mass = link_mass
-        self.r_com = r_com
-        self.link_name = link_name
-        self.joint_name = joint_name
-
-        self.gravity = 9.8
-
-        self.gz_node = GzNode()
-        self.publisher = self.gz_node.advertise(
-            "/world/excavator/wrench/persistent",
-            EntityWrench,
-        )
-
-        # Used to find the index of the target joint in /joint_states
-        self.message_index = None
-
-    def gravity_torque(self, theta_rad: float):
-        return self.mass * self.gravity * self.r_com * math.cos(theta_rad)
-
-    def joint_state_callback(self, msg):
-        theta: float = self.get_angle(msg)
-        torque = self.gravity_torque(theta)
-
-        wrench = EntityWrench()
-        wrench.entity.name = self.link_name
-        wrench.entity.type = 3                  # TODO: try 2 and 3
-        wrench.wrench.torque.y = torque
-        self.publisher.publish(wrench)
-
-    def get_angle(self, msg) -> float:
-        """ This is only really relevant for boom joints. """
-        if self.message_index is None:
-            try:
-                self.message_index = msg.name.index(self.joint_name)
-            except ValueError:
-                raise RuntimeError(
-                    f"'{self.joint_name}' not found in /joint_states."
-                    "Check that JointStatePublisher is attached and the bridge is configured."
-                )
-        return msg.position[self.message_index]
-### GravityCompensator ###
-
+        msg = Twist()
+        if isinstance(value, (int, float)):
+            linear_x, angular_z = 0.0, 0.0
+        else:
+            linear_x, angular_z = value
+        msg.linear.x = linear_x
+        msg.angular.z = angular_z
+        self.publisher.publish(msg)
+### TwistPublisher ###
 
 
 def get_key():
@@ -212,7 +159,7 @@ def get_key():
     readable, _, _ = select.select([sys.stdin], [], [], 0)
     if readable:
         return sys.stdin.read(1)
-
+    
     return None
 
 
@@ -221,13 +168,26 @@ def main():
 
     try:
         tty.setcbreak(sys.stdin.fileno())
-
         rclpy.init()
 
         # ====== Set up all publishing nodes ====== #
         Nodes: list[RosNode] = []
 
-        # Upper arm - Pitch
+        # Differential Drive - Twist
+        drive_node = TwistPublisher(
+            name='drive_teleop',
+            topic='/cmd_vel',
+            key_bindings={
+                'w': (0.5, 0.0),
+                'a': (0.0, 0.5),
+                's': (-0.5, 0.0),
+                'd': (0.0, -0.5),
+                'x': (0.0, 0.0),
+            },
+        )
+        Nodes.append(drive_node)
+
+        # Upper arm - Position
         upper_arm_node = JointTrajectoryPublisher(
             name='arm_teleop',
             joint_name='upper_arm_joint',
@@ -260,11 +220,8 @@ def main():
         if rclpy.ok():
             rclpy.shutdown()
 
-
-
     # ====== Prints the explanation / controls to the terminal ====== #
     print(__doc__)
-
 
     # ====== MAIN LOOP ====== #
     try:
@@ -306,7 +263,7 @@ def main():
         # Safely shuts down rclpy
         if rclpy.ok():
             rclpy.shutdown()
-
-
+        
+        
 if __name__ == '__main__':
     main()
