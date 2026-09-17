@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<sdf version="1.10">
+  <world name="aarp_goose_demo_v2">
+
+    <gravity>0 0 -9.81</gravity>
+
+    <scene>
+      <ambient>0.55 0.55 0.55 1</ambient>
+      <background>0.72 0.84 0.95 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 30 0 0 0</pose>
+      <diffuse>0.95 0.92 0.84 1</diffuse>
+      <specular>0.20 0.20 0.20 1</specular>
+      <direction>-0.4 0.3 -1</direction>
+    </light>
+
+    <model name="heightmap_terrain">
+      <static>true</static>
+      <link name="terrain_link">
+
+        <collision name="terrain_collision">
+          <geometry>
+            <heightmap>
+              <uri>heightmaps/aarp_goose_demo_heightmap_v2.png</uri>
+              <size>100 100 8</size>
+              <pos>0 0 -4.0</pos>
+              <sampling>2</sampling>
+            </heightmap>
+          </geometry>
+        </collision>
+
+        <visual name="terrain_visual">
+          <cast_shadows>true</cast_shadows>
+          <geometry>
+            <heightmap>
+              <uri>heightmaps/aarp_goose_demo_heightmap_v2.png</uri>
+              <size>100 100 8</size>
+              <pos>0 0 -4.0</pos>
+              <texture>
+                <size>10</size>
+                <diffuse>heightmaps/dirt_diffuse_v2.png</diffuse>
+                <normal>heightmaps/flat_normal.png</normal>
+              </texture>
+              <sampling>2</sampling>
+            </heightmap>
+          </geometry>
+        </visual>
+
+      </link>
+    </model>
+
+  </world>
+</sdf>
