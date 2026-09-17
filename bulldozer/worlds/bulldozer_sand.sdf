@@ -65,7 +65,7 @@
           <geometry>
             <heightmap>
               <uri>resource/Heightmap.png</uri>
-              <size>513 513 20</size>
+              <size>513 513 10</size>
               <pos>0 0 -22</pos>
             </heightmap>
           </geometry>
@@ -74,7 +74,7 @@
           <geometry>
             <heightmap>
               <uri>resource/Heightmap.png</uri>
-              <size>513 513 20</size>
+              <size>513 513 10</size>
               <pos>0 0 -22</pos>
               <texture>
                 <size>10</size>
@@ -90,6 +90,7 @@
           
         </visual>
       </link>
+      <pose>0 0 -22 0 0 0</pose>
     </model>
 
     <light name='sun' type='directional'>

@@ -80,7 +80,7 @@ def generate_launch_description():
         launch_arguments={
             "gz_args": [
                 IfElseSubstitution(LaunchConfiguration("gui"), "", "-s "),
-                "-r \"", world, "\"",
+                "-r -v4 \"", world, "\"",
             ],
             "on_exit_shutdown": "true",
         }.items(),
