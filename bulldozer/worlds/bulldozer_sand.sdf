@@ -65,8 +65,8 @@
           <geometry>
             <heightmap>
               <uri>resource/Heightmap.png</uri>
-              <size>513 513 10</size>
-              <pos>0 0 -22</pos>
+              <size>513 513 1</size>
+              <pos>0 0 0</pos>
             </heightmap>
           </geometry>
         </collision>
@@ -74,8 +74,8 @@
           <geometry>
             <heightmap>
               <uri>resource/Heightmap.png</uri>
-              <size>513 513 10</size>
-              <pos>0 0 -22</pos>
+              <size>513 513 1</size>
+              <pos>0 0 0</pos>
               <texture>
                 <size>10</size>
                 <diffuse>resource/sandDiffuse.png</diffuse>
@@ -90,7 +90,7 @@
           
         </visual>
       </link>
-      <pose>0 0 -22 0 0 0</pose>
+      <pose>0 0 0 0 0 0</pose>
     </model>
 
     <light name='sun' type='directional'>
