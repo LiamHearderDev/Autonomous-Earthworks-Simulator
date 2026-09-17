@@ -58,7 +58,6 @@ install/
 log/
 __pycache__/
 *.egg-info/
-
 **/install
 **/log
 **/logs
