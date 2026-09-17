@@ -122,6 +122,7 @@ colcon --log-base /dev/null build --symlink-install
 3. Load the environment workspace built by Colcon.
 ```bash
 source install/setup.bash
+```
 
 4. Launch the bulldozer robot through ROS2.
 ```bash
