@@ -30,7 +30,7 @@
           <scene>scene</scene>
           <ambient_light>0.4 0.4 0.4</ambient_light>
           <background_color>0.8 0.8 0.8</background_color>
-          <camera_pose>-6 0 6 0 0.5 0</camera_pose>
+          <camera_pose>-30 0 24 0.5 0</camera_pose>
           <camera_clip>
               <near>0.25</near>
               <far>25000</far>
@@ -65,7 +65,7 @@
           <geometry>
             <heightmap>
               <uri>resource/Heightmap.png</uri>
-              <size>513 513 1</size>
+              <size>513 513 12</size>
               <pos>0 0 0</pos>
             </heightmap>
           </geometry>
@@ -74,7 +74,7 @@
           <geometry>
             <heightmap>
               <uri>resource/Heightmap.png</uri>
-              <size>513 513 1</size>
+              <size>513 513 12</size>
               <pos>0 0 0</pos>
               <texture>
                 <size>10</size>
