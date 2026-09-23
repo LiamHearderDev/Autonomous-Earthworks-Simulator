@@ -19,7 +19,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, IfElseSubstitution, LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
@@ -50,9 +50,7 @@ def generate_launch_description():
     # ---- Process the xacro/URDF into robot_description ---------------------
     xacro_file = os.path.join(pkg_share, "urdf", robot_name + ".urdf.xacro")
     robot_description = {
-        "robot_description": ParameterValue(
-            Command(["xacro \"", xacro_file, "\""]), value_type=str
-        )
+        "robot_description": Command(["xacro ", xacro_file])
     }
 
     # ---- robot_state_publisher ---------------------------------------------
@@ -62,6 +60,29 @@ def generate_launch_description():
         output="screen",
         parameters=[robot_description, {"use_sim_time": use_sim_time}],
     )
+    
+    # ---- Activating ROS2 controllers ---------------------------------------
+    joint_state_broadcaster = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "joint_state_broadcaster",
+            "--controller-manager",
+            "/controller_manager",
+        ],
+        output="screen",
+    )
+    
+    blade_controller = Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=[
+                "blade_controller",
+                "--controller-manager",
+                "/controller_manager",
+            ],
+            output="screen",
+        )
 
     # ---- Start Gazebo (gz sim) via ros_gz_sim's launch file ----------------
     gz_sim = IncludeLaunchDescription(
@@ -71,12 +92,7 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
-            "gz_args": [
-                IfElseSubstitution(LaunchConfiguration("gui"), "", "-s "),
-                "-r -v4 \"", world, "\"",
-            ],
-            "on_exit_shutdown": "true",
-        }.items(),
+            "gz_args": ["-r -v4 ", world], "on_exit_shutdown": "true"}.items(),
     )
 
     # ---- Spawn the robot from /robot_description into Gazebo ---------------
@@ -108,10 +124,11 @@ def generate_launch_description():
         [
             world_arg,
             use_sim_time_arg,
-            gui_arg,
             robot_state_publisher,
             gz_sim,
             spawn_robot,
             bridge,
+            joint_state_broadcaster,
+            blade_controller
         ]
     )

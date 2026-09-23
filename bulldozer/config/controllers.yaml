@@ -1,0 +1,23 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 1000
+    enforce_command_limits: true
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    blade_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+blade_controller:
+  ros__parameters:
+    joints:
+      - chassis_to_blade
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 0.5

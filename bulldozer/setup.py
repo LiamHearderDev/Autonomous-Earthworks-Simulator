@@ -25,6 +25,10 @@ setup(
         # Bridge / other config files
         (os.path.join('share', package_name, 'config'),
             glob('config/*')),
+        
+        # For ROS2 model configurations
+        (os.path.join('share', package_name, 'model'),
+            glob('model/*')),
 
         # Gazebo worlds
         (os.path.join('share', package_name, 'worlds'),
@@ -43,7 +47,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'keyboard_teleop = bulldozer.keyboard_teleop:main',
+            'bulldozer_teleop = bulldozer.bulldozer_teleop:main',
         ],
     },
 )
