@@ -4,7 +4,7 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <!-- ros2_control parameters -->
+    <!-- ros2_control parameterss -->
     <xacro:property name="control_update_rate" value="100"/>
 
     <xacro:property name="arm_command_interface" value="velocity"/>
