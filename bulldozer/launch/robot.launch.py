@@ -43,6 +43,11 @@ def generate_launch_description():
         default_value="true",
         description="Use simulation clock",
     )
+    gui_arg = DeclareLaunchArgument(
+        "gui",
+        default_value="true",
+        description="Open the Gazebo GUI; false runs only the simulation server",
+    )
 
     world = LaunchConfiguration("world")
     use_sim_time = LaunchConfiguration("use_sim_time")
