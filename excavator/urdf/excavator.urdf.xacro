@@ -95,7 +95,7 @@
     <visual>
       <origin xyz="0 0 1" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.3" length="2.0"/>
+        <cylinder radius="0.2" length="2.0"/>
       </geometry>
       <material name="green"/>
     </visual>
@@ -113,6 +113,33 @@
     <origin xyz="1.0 0 0.25" rpy="0 0.785398 0"/> <!-- Front + angled 45 degrees. -->
     <axis xyz="0 1 0"/>
     <limit lower="-1.5" upper="1.5" effort="1000" velocity="0.5" />
+    <dynamics damping="0.5" friction="0.0"/>
+  </joint>
+
+  <!-- ================= LOWER ARM ================= -->
+  <link name="lower_arm">
+    <inertial>
+      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="7.1167" ixy="0" ixz="0"
+           iyy="7.1167" iyz="0"
+           izz="0.9000"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.2" length="1.0"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+  </link>
+
+  <joint name="lower_arm_joint" type="revolute">
+    <parent link="upper_arm"/>
+    <child link="lower_arm"/>
+    <origin xyz="0 0 2.0" rpy="0 2.356194 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-2.0" upper="1.0" effort="1000" velocity="0.5" />
     <dynamics damping="0.5" friction="0.0"/>
   </joint>
 
