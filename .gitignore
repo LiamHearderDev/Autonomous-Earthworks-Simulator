@@ -54,6 +54,10 @@ CATKIN_IGNORE
 .origin
 
 # ROS2 Robot Package files
+install/
+log/
+__pycache__/
+*.egg-info/
 **/install
 **/log
 **/logs

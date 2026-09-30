@@ -36,7 +36,11 @@ setup(
 
         # For world files
         (os.path.join('share', package_name, 'worlds'),
-            glob('worlds/*')),
+            glob('worlds/*.sdf')),
+
+        # Heightmap resources used by the worlds
+        (os.path.join('share', package_name, 'worlds', 'heightmaps'),
+            glob('worlds/heightmaps/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -48,7 +52,6 @@ setup(
     entry_points={
         'console_scripts': [
             # Add here any Python nodes you write
-            'arm_teleop = excavator.arm_teleop:main',
             'excavator_teleop = excavator.excavator_teleop:main',
         ],
     },

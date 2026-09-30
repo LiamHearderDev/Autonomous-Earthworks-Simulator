@@ -33,7 +33,7 @@ def generate_launch_description():
     # ---- Launch arguments -------------------------------------------------
     world_arg = DeclareLaunchArgument(
         "world",
-        default_value="worlds/excavator_empty.sdf",
+        default_value="worlds/aarp_goose_demo_v2.sdf",
         description="Gazebo world file to load",
     )
     use_sim_time_arg = DeclareLaunchArgument(
@@ -110,7 +110,7 @@ def generate_launch_description():
         arguments=[
             "-topic", "robot_description",
             "-name", robot_name,
-            "-x", "0.5", "-y", "0.0", "-z", "0.4",
+            "-x", "0.5", "-y", "0.0", "-z", "5.4",
         ],
         output="screen",
     )

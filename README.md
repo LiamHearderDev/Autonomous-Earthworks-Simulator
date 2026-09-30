@@ -1,35 +1,17 @@
-# Autonomous-Earthworks-Simulator
+# Autonomous Earthworks Simulator
 
-This is a Gazebo simulation of autonomous earthworks vehicles. The simulation is designed to be used with ROS2, but it can also be run without ROS2, just with Gazebo. 
+This repository contains ROS 2 and Gazebo simulations for a bulldozer and an
+excavator.
 
-The current stage of the simulation includes a test world with an excavator and basic terrain.
+## Packages
 
-# How to launch the excavator world (without ROS2):
+- `bulldozer/` contains the wheeled bulldozer, movable blade, sand world, and
+  keyboard controller.
+- `excavator/` contains the excavator, arm controls, and ROS 2 controllers.
 
-### 1. Configure and build the project:
-```bash
-cmake -S . -B build && cmake --build build
-```
+## Compilation Steps
 
-### 2. Navigate to the project directory.
-```bash
-cd /path/to/Autonomous-Earthworks-Simulator
-```
-
-### 3. Set your Gazebo simulation resource path to the working directory:
-```bash
-export GZ_SIM_RESOURCE_PATH=${GZ_SIM_RESOURCE_PATH}:$(pwd)
-```
-
-### 4. Open Gazebo and load the test world:
-```bash
-gz sim worlds/ae_test.sdf
-```
-You should now be able to see the excavator in the Gazebo simulation environment. If you would like to be able to control the excavator with ROS2, please follow the instructions below.
-
-# How to launch the excavator world (with ROS2):
-
-### 1. Install all required packages and dependencies for ros2 <-> gazebo integration:
+### 1. Install all dependencies:
 ```bash
 sudo apt install -y \
     ros-jazzy-ros-gz \
@@ -41,57 +23,122 @@ sudo apt install -y \
     ros-jazzy-ros2run \
     ros-jazzy-gz-ros2-control \
     ros-jazzy-ros2-controllers \
-    ros-jazzy-rviz2 \
-```
-Note: `ros-jazzy-teleop-twist-keyboard` is optional and only needed if you want to control the excavator with keyboard input in the terminal.
-
-### 2. Configure and build the project:
-```bash
-cmake -S . -B build && cmake --build build
+    ros-jazzy-rviz2
 ```
 
-### 3. Source your ROS2 workspace:
-```bash
-source /opt/ros/jazzy/setup.bash
-```
-
-### 4. Navigate to the project root directory.
+### 2. Navigate to the project directory.
 ```bash
 cd /path/to/Autonomous-Earthworks-Simulator
 ```
 
-### 5. Set your Gazebo simulation resource path to the working directory:
+### 3. Configure and build the project:
+```bash
+cmake -S . -B build && cmake --build build
+```
+
+### 4. Set your Gazebo simulation resource path to the working directory:
 ```bash
 export GZ_SIM_RESOURCE_PATH=${GZ_SIM_RESOURCE_PATH}:$(pwd)
 ```
 
-### 6. Navigate to the excavator package directory:
+### 5. Build both packages
+```bash
+cd bulldozer
+colcon build --symlink-install
+cd ..
+```
+and
+```bash
+cd excavator
+colcon build --symlink-install
+cd ..
+```
+
+### 6. Navigate to the package you wish to run, and follow the steps below
 ```bash
 cd excavator
 ```
-
-### 7. Build the ROS2 package:
+or
 ```bash
-colcon build --symlink-install
+cd bulldozer
 ```
 
-### 8. Source the ROS2 workspace:
+
+## Excavator
+
+Build and launch the excavator from the repository root:
+
+1. Load the ROS2 environment for Jazzy Jalisco. This ensures that ROS2 commands will work as needed.
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+2. Build the workspace using Colcon. This compiles all packages in the workspace and installs them to `install/`.
+```bash
+colcon --log-base /dev/null build --symlink-install
+```
+
+3. Load the environment workspace built by Colcon.
 ```bash
 source install/setup.bash
 ```
 
-### 9. Launch the Gazebo simulation with ROS2:
+4. Launch the excavator robot through ROS2.
 ```bash
 ros2 launch excavator robot.launch.py
 ```
 
-### 10. In a separate terminal, launch the excavator_teleop control application:
+---
+
+In another terminal, start its keyboard controller:
+
 ```bash
-cd path/to/Autonomous-Earthworks-Simulator/excavator
-
+cd /path/to/Autonomous-Earthworks-Simulator/excavator
 source /opt/ros/jazzy/setup.bash
-
 source install/setup.bash
-
 ros2 run excavator excavator_teleop
 ```
+
+Use numpad `8`/`2` for the arm, numpad `4`/`6` for chassis rotation, `5` to
+stop, and `Q` to quit.
+
+
+## Bulldozer
+
+Build and launch the bulldozer from the repository root:
+
+
+
+1. Load the ROS2 environment for Jazzy Jalisco. This ensures that ROS2 commands will work as needed.
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+2. Build the workspace using Colcon. This compiles all packages in the workspace and installs them to `install/`.
+```bash
+colcon --log-base /dev/null build --symlink-install
+```
+
+3. Load the environment workspace built by Colcon.
+```bash
+source install/setup.bash
+```
+
+4. Launch the bulldozer robot through ROS2.
+```bash
+ros2 launch bulldozer robot.launch.py
+```
+
+---
+
+In another terminal, start its keyboard controller:
+
+```bash
+cd /path/to/Autonomous-Earthworks-Simulator/bulldozer
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+ros2 run bulldozer keyboard_teleop
+```
+
+Use `W`/`S` to drive, `A`/`D` to turn, Space or `X` to stop, `R`/`F` to
+raise or lower the blade, and `Q` to quit.
