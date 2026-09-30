@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [ "$#" -ne 2 ]; then
+    echo "How to use:"
+    echo "./earthworks <machine> <worksite>"
+    echo ""
+    echo "Machines: blast-dog, cat-302-cr"
+    echo "Worksites: goose, empty"
+    exit 1
+fi
+
+machine=$1
+worksite=$2
+
+if [ "$machine" = "blast-dog" ]; then
+    machine_name="IMDEX Blast Dog"
+elif [ "$machine" = "cat-302-cr" ]; then
+    machine_name="CAT 302 CR"
+else
+    echo "Machine not found: $machine"
+    echo "Choose: blast-dog or cat-302-cr"
+    exit 1
+fi
+
+if [ "$worksite" = "goose" ]; then
+    worksite_name="AARP Goose"
+elif [ "$worksite" = "empty" ]; then
+    worksite_name="Empty Worksite"
+else
+    echo "Worksite not found: $worksite"
+    echo "Choose: goose or empty"
+    exit 1
+fi
+
+
+echo "Machine selected: $machine_name"
+echo "Worksite selected: $worksite_name"
