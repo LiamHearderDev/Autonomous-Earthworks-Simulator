@@ -1,37 +1,94 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-if [ "$#" -ne 2 ]; then
-    echo "How to use:"
-    echo "./earthworks <machine> <worksite>"
-    echo ""
-    echo "Machines: blast-dog, cat-302-cr"
-    echo "Worksites: goose, empty"
+set -u
+
+usage() {
+    cat <<'EOF'
+Usage:
+  ./earthworks <machine> <environment>
+
+Machines:
+  cat-302-cr  CAT 302 CR
+  blast-dog   IMDEX Blast Dog (temporarily uses the CAT model)
+
+Environments:
+  goose       AARP Goose
+  empty       Empty Worksite
+
+Example:
+  ./earthworks cat-302-cr goose
+EOF
+}
+
+if (( $# == 1 )) && [[ $1 == '-h' || $1 == '--help' ]]; then
+    usage
+    exit 0
+fi
+
+if (( $# != 2 )); then
+    printf 'A machine and environment are required.\n\n' >&2
+    usage >&2
     exit 1
 fi
 
-machine=$1
-worksite=$2
+project_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+ros_setup=/opt/ros/jazzy/setup.bash
+workspace_setup="$project_dir/excavator/install/setup.bash"
 
-if [ "$machine" = "blast-dog" ]; then
-    machine_name="IMDEX Blast Dog"
-elif [ "$machine" = "cat-302-cr" ]; then
-    machine_name="CAT 302 CR"
-else
-    echo "Machine not found: $machine"
-    echo "Choose: blast-dog or cat-302-cr"
+case $1 in
+    cat-302-cr) machine='CAT 302 CR' ;;
+    blast-dog) machine='IMDEX Blast Dog' ;;
+    *)
+        printf 'Unknown machine: %s\n' "$1" >&2
+        printf 'Choose cat-302-cr or blast-dog.\n' >&2
+        exit 1
+        ;;
+esac
+
+# Blast Dog uses the CAT excavator model until its own ROS package is added.
+robot_package=excavator
+
+case $2 in
+    goose)
+        environment='AARP Goose'
+        world_file="$project_dir/excavator/worlds/aarp_goose_demo_v2.sdf"
+        ;;
+    empty)
+        environment='Empty Worksite'
+        world_file="$project_dir/excavator/worlds/excavator_empty.sdf"
+        ;;
+    *)
+        printf 'Unknown environment: %s\n' "$2" >&2
+        printf 'Choose goose or empty.\n' >&2
+        exit 1
+        ;;
+esac
+
+if [[ ! -f $ros_setup ]]; then
+    printf 'ROS 2 Jazzy was not found at %s.\n' "$ros_setup" >&2
     exit 1
 fi
 
-if [ "$worksite" = "goose" ]; then
-    worksite_name="AARP Goose"
-elif [ "$worksite" = "empty" ]; then
-    worksite_name="Empty Worksite"
-else
-    echo "Worksite not found: $worksite"
-    echo "Choose: goose or empty"
+if [[ ! -f $workspace_setup ]]; then
+    printf 'The excavator workspace has not been built.\n' >&2
+    printf 'Build it first with: cd "%s/excavator" && colcon build --symlink-install\n' "$project_dir" >&2
     exit 1
 fi
 
+printf '\nMachine selected: %s\n' "$machine"
+printf 'Environment selected: %s\n' "$environment"
+if [[ $machine == 'IMDEX Blast Dog' ]]; then
+    printf 'Using the CAT excavator model temporarily for Blast Dog.\n'
+fi
+printf 'Starting the simulator...\n\n'
 
-echo "Machine selected: $machine_name"
-echo "Worksite selected: $worksite_name"
+# ROS setup scripts may reference variables that have not been defined yet.
+set +u
+# shellcheck source=/opt/ros/jazzy/setup.bash
+source "$ros_setup"
+# shellcheck source=/dev/null
+source "$workspace_setup"
+set -u
+
+export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$project_dir"
+exec ros2 launch "$robot_package" robot.launch.py "world:=$world_file"
