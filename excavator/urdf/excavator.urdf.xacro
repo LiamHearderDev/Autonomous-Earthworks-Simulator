@@ -323,6 +323,35 @@
     </collision>
   </gazebo>
 
+  <!-- ================= CAMERA ================= -->
+  <link name="excavator_camera_link">
+    <sensor name="excavator_camera" type="camera">
+      <camera>
+        <pose>0 0 0 0 0 0</pose>
+        <horizontal_fov>1.0469999999999999</horizontal_fov>
+        <image>
+          <width>320</width>
+          <height>240</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>100</far>
+        </clip>
+      </camera>
+      <always_on>1</always_on>
+      <update_rate>30</update_rate>
+      <visualize>1</visualize>
+    </sensor>
+  </link>
+
+  <joint name="camera_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+    <parent link="upper_arm"/>
+    <child link="excavator_camera_link"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
   <!-- ================= DIFF DRIVE PLUGIN ================= -->
   <gazebo>
     <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
