@@ -10,10 +10,15 @@ Movement Controls:
     D - Right
     X - Stop
 
-Arm Controls:
+Upper Arm Controls:
     8 - Pitch up
     5 - Stop
     2 - Pitch down
+
+Lower Arm Controls:
+    7 - Pitch ip
+    5 - Stop
+    1 - Pitch down
 
 Chassis Controls:
     4 - Rotate left
@@ -51,6 +56,7 @@ class Float64Publisher(RosNode):
 
     def __init__(self, name: str, joint_name: str, link_name: str, topic: str, key_bindings: dict):
         super().__init__(name)
+        self.name = name
         self.publisher = self.create_publisher(Float64MultiArray, topic, 10)
 
         self.key_bindings = key_bindings
@@ -87,13 +93,14 @@ class Float64Publisher(RosNode):
 class JointTrajectoryPublisher(RosNode):
     """Command a joint toward an endpoint until a new target is sent."""
 
-    def __init__(self, name: str, joint_name: str, topic: str, key_bindings: dict):
+    def __init__(self, name: str, joint_name: str, topic: str, key_bindings: dict, lower_limit: float, upper_limit: float):
         super().__init__(name)
+        self.name = name
         self.publisher = self.create_publisher(JointTrajectory, topic, 10)
         self.joint_name = joint_name
         self.key_bindings = key_bindings
-        self.lower_limit = -0.8
-        self.upper_limit = 0.8
+        self.lower_limit = lower_limit
+        self.upper_limit = upper_limit
         self.joint_position = None
         self.create_subscription(
             JointState,
@@ -103,12 +110,24 @@ class JointTrajectoryPublisher(RosNode):
         )
 
     def joint_state_callback(self, message):
+        # print(f"joint state message for {self.joint_name}: \n---\n{message}\n---")
+        
         if self.joint_name in message.name:
             self.joint_position = message.position[message.name.index(self.joint_name)]
+        else:
+            print(f"did NOT find in joint state callback. Here it is: \n---\n{message}\n---")
 
     def publish(self, direction):
-        if not rclpy.ok() or self.joint_position is None:
+        # print(f"started publishing {self.joint_name} as {direction}")
+
+        if not rclpy.ok():
+            print("not ok")
             return
+        if self.joint_position is None:
+            print("position is None")
+            return
+
+        print(f"started trajectory")
 
         trajectory = JointTrajectory()
         trajectory.joint_names = [self.joint_name]
@@ -126,15 +145,16 @@ class JointTrajectoryPublisher(RosNode):
         point.time_from_start.nanosec = 100000000
         trajectory.points = [point]
         self.publisher.publish(trajectory)
+
+        print(f"finished")
 ### JointTrajectoryPublisher ###
 
 
 class TwistPublisher(RosNode):
     def __init__(self, name: str, topic: str, key_bindings: dict):
         super().__init__(name)
-
+        self.name = name
         self.publisher = self.create_publisher(Twist, topic, 10)
-
         self.key_bindings = key_bindings
 
     def publish(self, value):
@@ -189,13 +209,25 @@ def main():
 
         # Upper arm - Position
         upper_arm_node = JointTrajectoryPublisher(
-            name='arm_teleop',
+            name='upper_arm_teleop',
             joint_name='upper_arm_joint',
-            topic='/arm_controller/joint_trajectory',
-            key_bindings={'8':-0.5, '2':0.5, '5': 0.0 }  # Up, Down, Stop
+            topic='/upper_arm_controller/joint_trajectory',
+            key_bindings={'8':-0.5, '2':0.5, '5': 0.0 },  # Up, Down, Stop
+            lower_limit=-0.8,
+            upper_limit=0.8
         )
-        # upper_arm_node.start_gravity_compensator(link_mass=1.0, r_com=1.0)
         Nodes.append(upper_arm_node)
+
+        # Lower arm - Position
+        lower_arm_node = JointTrajectoryPublisher(
+            name='lower_arm_teleop',
+            joint_name='lower_arm_joint',
+            topic='/lower_arm_controller/joint_trajectory',
+            key_bindings={'7':-0.5, '1':0.5, '5': 0.0 },  # Up, Down, Stop
+            lower_limit=-1.6,
+            upper_limit=0.0
+        )
+        Nodes.append(lower_arm_node)
 
         # Chassis - Yaw
         chassis_node = Float64Publisher(
@@ -225,15 +257,19 @@ def main():
 
     # ====== MAIN LOOP ====== #
     try:
+        for node in Nodes:
+            print(node.name)
         while True:
 
             for node in Nodes:
-                rclpy.spin_once(node, timeout_sec=0.0)
+                rclpy.spin_once(node, timeout_sec=0.001)
 
             key = get_key()
             if (key is None):
                 time.sleep(0.01)
                 continue
+
+            print(key)
 
             # Check if should exit
             if key == 'q' or key == '\x03':

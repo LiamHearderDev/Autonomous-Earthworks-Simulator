@@ -71,11 +71,22 @@ def generate_launch_description():
     output="screen",
 )
 
-    arm_controller = Node(
+    upper_arm_controller = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "arm_controller",
+            "upper_arm_controller",
+            "--controller-manager",
+            "/controller_manager",
+        ],
+        output="screen",
+    )
+
+    lower_arm_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "lower_arm_controller",
             "--controller-manager",
             "/controller_manager",
         ],
@@ -137,7 +148,8 @@ def generate_launch_description():
             spawn_robot,
             bridge,
             joint_state_broadcaster,
-            arm_controller,
+            upper_arm_controller,
+            lower_arm_controller,
             chassis_controller
         ]
     )
