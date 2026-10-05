@@ -3,6 +3,18 @@
 This repository contains ROS 2 and Gazebo simulations for a bulldozer and an
 excavator.
 
+Run the simulator from the repository root by passing the machine and
+environment names:
+
+```bash
+./earthworks cat-302-cr goose
+```
+
+Machines are `cat-302-cr` and `blast-dog`; environments are `goose` and `empty`.
+The command loads the ROS 2 environment and launches Gazebo with the chosen
+world. Until its own simulation model is added, `blast-dog` temporarily uses the
+CAT excavator model. Run `./earthworks --help` to display the available values.
+
 ## Packages
 
 - `bulldozer/` contains the wheeled bulldozer, movable blade, sand world, and
