@@ -1,19 +1,37 @@
 # Autonomous Earthworks Simulator
 
-This repository contains ROS 2 and Gazebo simulations for a bulldozer and an
-excavator.
+This repository contains ROS 2 and Gazebo simulations for a bulldozer and two
+selectable excavator variants.
 
-Run the simulator from the repository root by passing the machine and
-environment names:
+## Excavator variants
+
+The excavator can be launched as either of the following variants:
+
+| Machine argument | Variant | Description |
+| --- | --- | --- |
+| `cat-302-cr` | Standard excavator | The normal CAT 302 CR configuration. |
+| `blast-dog` | IMDEX BLASTDOG | The BLASTDOG configuration for the downhole data-acquisition workflow. |
+
+Both variants currently use the same CAT 302 CR simulation model. Selecting
+`blast-dog` gives the shared model the BLASTDOG identity so its specialised
+functionality can be added independently as development continues.
+
+Run the simulator from the repository root by passing a machine and an
+environment:
 
 ```bash
 ./earthworks cat-302-cr goose
 ```
 
-Machines are `cat-302-cr` and `blast-dog`; environments are `goose` and `empty`.
-The command loads the ROS 2 environment and launches Gazebo with the chosen
-world. Until its own simulation model is added, `blast-dog` temporarily uses the
-CAT excavator model. Run `./earthworks --help` to display the available values.
+To select the BLASTDOG variant instead:
+
+```bash
+./earthworks blast-dog goose
+```
+
+The available environments are `goose` and `empty`. The command loads the ROS 2
+environment and launches Gazebo with the chosen world. Run `./earthworks --help`
+to display all available values.
 
 ## Packages
 
