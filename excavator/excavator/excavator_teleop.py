@@ -16,7 +16,7 @@ Upper Arm Controls:
     2 - Pitch down
 
 Lower Arm Controls:
-    7 - Pitch ip
+    7 - Pitch up
     5 - Stop
     1 - Pitch down
 
@@ -127,8 +127,6 @@ class JointTrajectoryPublisher(RosNode):
             print("position is None")
             return
 
-        print(f"started trajectory")
-
         trajectory = JointTrajectory()
         trajectory.joint_names = [self.joint_name]
 
@@ -146,7 +144,6 @@ class JointTrajectoryPublisher(RosNode):
         trajectory.points = [point]
         self.publisher.publish(trajectory)
 
-        print(f"finished")
 ### JointTrajectoryPublisher ###
 
 
@@ -257,8 +254,6 @@ def main():
 
     # ====== MAIN LOOP ====== #
     try:
-        for node in Nodes:
-            print(node.name)
         while True:
 
             for node in Nodes:
@@ -268,8 +263,6 @@ def main():
             if (key is None):
                 time.sleep(0.01)
                 continue
-
-            print(key)
 
             # Check if should exit
             if key == 'q' or key == '\x03':
