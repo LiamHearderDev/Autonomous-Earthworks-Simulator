@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--
+    First-pass IMDEX BLASTDOG attachment.
+
+    The probe dimensions come from the BLASTDOG information sheet:
+      length:   1.75 m
+      diameter: 0.105 m
+
+    The attachment is fixed to the excavator arm for now. A deployable joint and
+    simulated downhole sensors can be added without changing the base excavator.
+  -->
+  <xacro:macro name="blastdog_attachment" params="parent">
+    <material name="blastdog_black">
+      <color rgba="0.03 0.03 0.03 1.0"/>
+    </material>
+    <material name="blastdog_white">
+      <color rgba="0.9 0.9 0.9 1.0"/>
+    </material>
+
+    <link name="blastdog_mount">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="5.0"/>
+        <inertia ixx="0.0427" ixy="0" ixz="0"
+                 iyy="0.0427" iyz="0" izz="0.0521"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.25 0.25 0.20"/>
+        </geometry>
+        <material name="blastdog_black"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.25 0.25 0.20"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="blastdog_mount_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="blastdog_mount"/>
+      <origin xyz="0 0 1.10" rpy="0 0 0"/>
+    </joint>
+
+    <link name="blastdog_probe">
+      <inertial>
+        <origin xyz="0 0 -0.875" rpy="0 0 0"/>
+        <mass value="15.0"/>
+        <inertia ixx="3.8379" ixy="0" ixz="0"
+                 iyy="3.8379" iyz="0" izz="0.0207"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 -0.875" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.0525" length="1.75"/>
+        </geometry>
+        <material name="blastdog_black"/>
+      </visual>
+      <visual>
+        <origin xyz="0 0 -0.55" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.107 0.107 0.30"/>
+        </geometry>
+        <material name="blastdog_white"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 -0.875" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.0525" length="1.75"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="blastdog_probe_joint" type="fixed">
+      <parent link="blastdog_mount"/>
+      <child link="blastdog_probe"/>
+      <origin xyz="0 0 -0.10" rpy="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+</robot>

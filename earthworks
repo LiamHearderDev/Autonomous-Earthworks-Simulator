@@ -95,4 +95,6 @@ source "$workspace_setup"
 set -u
 
 export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$project_dir"
-exec ros2 launch "$robot_package" robot.launch.py "world:=$world_file"
+exec ros2 launch "$robot_package" robot.launch.py \
+    "world:=$world_file" \
+    "machine_variant:=$1"
