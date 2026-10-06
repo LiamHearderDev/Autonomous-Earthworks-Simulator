@@ -62,9 +62,8 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="1.5 1.0 1.0"/>
+        <mesh filename="package://excavator/meshes/CAT302_Chassis.obj"/>
       </geometry>
-      <material name="blue"/>
     </visual>
     <!-- <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
