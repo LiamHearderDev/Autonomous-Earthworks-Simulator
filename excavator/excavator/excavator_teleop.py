@@ -231,13 +231,23 @@ def main():
         )
         Nodes.append(chassis_node)
 
+        
+        # blastdog_probe_node = Float64Publisher(
+        #     name='blastdog_probe_teleop',
+        #     link_name='blastdog_probe',
+        #     joint_name='blastdog_probe_joint',
+        #     topic='/blastdog_probe_controller/commands',
+        #     key_bindings={'9': 0.25, '3': -0.25, '5': 0.0},  # Up, Down, Stop
+        # )
+
         # BLASTDOG probe - vertical prismatic joint velocity
-        blastdog_probe_node = Float64Publisher(
+        blastdog_probe_node = JointTrajectoryPublisher(
             name='blastdog_probe_teleop',
-            link_name='blastdog_probe',
             joint_name='blastdog_probe_joint',
-            topic='/blastdog_probe_controller/commands',
-            key_bindings={'9': 0.25, '3': -0.25, '5': 0.0},  # Up, Down, Stop
+            topic="/blastdog_probe_controller/joint_trajectory",
+            key_bindings={'9': -0.25, '3': 0.25, '5': 0.0},
+            lower_limit=0.0,
+            upper_limit=1.5
         )
         Nodes.append(blastdog_probe_node)
 
@@ -259,8 +269,6 @@ def main():
 
     # ====== MAIN LOOP ====== #
     try:
-        for node in Nodes:
-            print(node.name)
         while True:
 
             for node in Nodes:

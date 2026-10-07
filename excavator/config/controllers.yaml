@@ -16,7 +16,7 @@ controller_manager:
       type: forward_command_controller/ForwardCommandController
 
     blastdog_probe_controller:
-      type: forward_command_controller/ForwardCommandController
+      type: joint_trajectory_controller/JointTrajectoryController
 
 upper_arm_controller:
   ros__parameters:
@@ -54,4 +54,11 @@ blastdog_probe_controller:
   ros__parameters:
     joints:
       - blastdog_probe_joint
-    interface_name: velocity
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 0.25
