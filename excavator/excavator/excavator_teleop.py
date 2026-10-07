@@ -115,24 +115,14 @@ class JointTrajectoryPublisher(RosNode):
         )
 
     def joint_state_callback(self, message):
-        # print(f"joint state message for {self.joint_name}: \n---\n{message}\n---")
-        
         if self.joint_name in message.name:
             self.joint_position = message.position[message.name.index(self.joint_name)]
         else:
-            print(f"did NOT find in joint state callback. Here it is: \n---\n{message}\n---")
+            print(f"did NOT find in joint state callback. Received message: \n---\n{message}\n---")
 
     def publish(self, direction):
-        # print(f"started publishing {self.joint_name} as {direction}")
-
-        if not rclpy.ok():
-            print("not ok")
+        if not rclpy.ok() or self.joint_position is None:
             return
-        if self.joint_position is None:
-            print("position is None")
-            return
-
-        print(f"started trajectory")
 
         trajectory = JointTrajectory()
         trajectory.joint_names = [self.joint_name]
@@ -150,8 +140,6 @@ class JointTrajectoryPublisher(RosNode):
         point.time_from_start.nanosec = 100000000
         trajectory.points = [point]
         self.publisher.publish(trajectory)
-
-        print(f"finished")
 ### JointTrajectoryPublisher ###
 
 
@@ -172,6 +160,7 @@ class TwistPublisher(RosNode):
             linear_x, angular_z = 0.0, 0.0
         else:
             linear_x, angular_z = value
+
         msg.linear.x = linear_x
         msg.angular.z = angular_z
         self.publisher.publish(msg)
@@ -180,11 +169,9 @@ class TwistPublisher(RosNode):
 
 def get_key():
     """ Get a single keypress from the terminal. """
-
     readable, _, _ = select.select([sys.stdin], [], [], 0)
     if readable:
         return sys.stdin.read(1)
-    
     return None
 
 
@@ -283,8 +270,6 @@ def main():
             if (key is None):
                 time.sleep(0.01)
                 continue
-
-            print(key)
 
             # Check if should exit
             if key == 'q' or key == '\x03':
