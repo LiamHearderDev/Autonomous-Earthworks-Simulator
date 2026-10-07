@@ -25,6 +25,9 @@ Chassis Controls:
     5 - Stop
     6 - Rotate right
 
+Camera Controls:
+    F - Take Camera Shot
+
 Other Controls:
     q - quit
     Ctrl-C - quit
@@ -38,6 +41,9 @@ import time     # For waiting 0.01s during I/O
 import sys      # For reading keyboard input
 import termios  # POSIX terminal control library
 import tty      # POSIX terminal control library
+import cv2      # Stands for OpenCV - image processing and computer vision library
+
+from cv_bridge import CvBridge
 
 import rclpy    # Python library for ROS 2
 from rclpy.node import Node as RosNode
@@ -46,7 +52,7 @@ from std_msgs.msg import Float64MultiArray
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from geometry_msgs.msg import Twist
 
-from sensor_msgs.msg import JointState  # For receiving data from the Joints
+from sensor_msgs.msg import JointState, Image # For receiving data from the Joints
 
 
 
@@ -169,6 +175,43 @@ class TwistPublisher(RosNode):
         self.publisher.publish(msg)
 ### TwistPublisher ###
 
+class ScreenshotPublisher(RosNode):
+    def __init__(self, name: str, key_bindings: dict):
+        super().__init__(name)
+        self.name = name
+
+        self.bridge = CvBridge()
+        self.key_bindings = key_bindings
+        self.latestFrame = None
+        self.screenshotCounter = 0
+        
+        self.imageSub = self.create_subscription(
+            Image,
+            '/rgbd_camera/image', 
+            self.imageCallback,
+            10)
+        
+    def imageCallback(self, msg):
+        self.latestFrame = msg
+            
+    def takeScreenshot(self):
+        try:
+            cvImage = self.bridge.imgmsg_to_cv2(self.latestFrame, desired_encoding='bgr8')
+            
+            filename = f'screenshots/excavator_screenshot_{self.screenshotCounter}.png'
+            cv2.imwrite(filename, cvImage)
+            self.screenshotCounter += 1
+            
+        except Exception as e:
+            print(e)
+            pass
+    
+    def publish(self, value):
+        if not rclpy.ok():
+            return
+
+        self.takeScreenshot()
+       
 
 def get_key():
     """ Get a single keypress from the terminal. """
@@ -235,6 +278,12 @@ def main():
             key_bindings={'4':0.5, '6':-0.5, '5':0.0 }  # Left, Right, Stop
         )
         Nodes.append(chassis_node)
+        
+        screenshot_node = ScreenshotPublisher(
+            name="screenshot_teleop",
+            key_bindings={'f':0}
+        )
+        Nodes.append(screenshot_node)
 
     except Exception as e:
         print("Exeception occurred... Exiting teleop.")

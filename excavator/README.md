@@ -13,7 +13,8 @@ sudo apt install -y \
     ros-jazzy-ros2run \
     ros-jazzy-gz-ros2-control \
     ros-jazzy-ros2-controllers \
-    ros-jazzy-rviz2
+    ros-jazzy-rviz2 \
+    ros-jazzy-cv-bridge
 ```
 
 Build and launch the excavator from the repository root:
