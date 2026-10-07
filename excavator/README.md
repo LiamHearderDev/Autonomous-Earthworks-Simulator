@@ -35,5 +35,6 @@ source install/setup.bash
 ros2 run excavator excavator_teleop
 ```
 
-Use numpad `8`/`2` for the arm, numpad `4`/`6` for chassis rotation, `5` to
-stop, and `Q` to quit.
+Use numpad `8`/`2` and `7`/`1` for the arm, numpad `4`/`6` for chassis
+rotation, and `5` to stop. On the BLASTDOG variant, numpad `9` raises the
+probe and numpad `3` lowers it. Press `Q` to quit.

@@ -13,9 +13,9 @@ The excavator can be launched as either of the following variants:
 | `blast-dog` | IMDEX BLASTDOG | The BLASTDOG configuration for the downhole data-acquisition workflow. |
 
 Both variants use the same CAT 302 CR base model. Selecting `blast-dog` adds a
-fixed BLASTDOG downhole probe attachment to the end of the excavator arm. The
-attachment uses the published 1.75 m probe length and 105 mm diameter; simulated
-deployment and sensor data can be added independently as development continues.
+deployable BLASTDOG downhole probe attachment to the end of the excavator arm.
+The attachment uses the published 1.75 m probe length and 105 mm diameter and a
+one-metre vertical prismatic joint.
 
 Run the simulator from the repository root by passing a machine and an
 environment:
@@ -130,8 +130,9 @@ source install/setup.bash
 ros2 run excavator excavator_teleop
 ```
 
-Use numpad `8`/`2` for the arm, numpad `4`/`6` for chassis rotation, `5` to
-stop, and `Q` to quit.
+Use numpad `8`/`2` and `7`/`1` for the arm, numpad `4`/`6` for chassis
+rotation, and `5` to stop. On the BLASTDOG variant, numpad `9` raises the
+probe and numpad `3` lowers it. Press `Q` to quit.
 
 
 ## Bulldozer

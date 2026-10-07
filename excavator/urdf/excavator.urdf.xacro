@@ -3,11 +3,11 @@
   name="excavator"
   xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find excavator)/model/control.xacro"/>
-  <xacro:include filename="$(find excavator)/model/blastdog_attachment.xacro"/>
-
   <xacro:arg name="machine_variant" default="cat-302-cr"/>
   <xacro:property name="machine_variant" value="$(arg machine_variant)"/>
+
+  <xacro:include filename="$(find excavator)/model/control.xacro"/>
+  <xacro:include filename="$(find excavator)/model/blastdog_attachment.xacro"/>
 
   <material name="blue">
     <color rgba="0.0 0.0 1.0 1"/>

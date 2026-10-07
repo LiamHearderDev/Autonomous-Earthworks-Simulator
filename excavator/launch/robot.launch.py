@@ -18,8 +18,9 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import Command
@@ -114,6 +115,20 @@ def generate_launch_description():
         output="screen",
     )
 
+    blastdog_probe_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "blastdog_probe_controller",
+            "--controller-manager",
+            "/controller_manager",
+        ],
+        output="screen",
+        condition=IfCondition(
+            PythonExpression(["'", machine_variant, "' == 'blast-dog'"])
+        ),
+    )
+
     # ---- Start Gazebo (gz sim) via ros_gz_sim's launch file ----------------
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -161,6 +176,7 @@ def generate_launch_description():
             joint_state_broadcaster,
             upper_arm_controller,
             lower_arm_controller,
-            chassis_controller
+            chassis_controller,
+            blastdog_probe_controller,
         ]
     )

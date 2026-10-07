@@ -15,6 +15,9 @@ controller_manager:
     chassis_controller:
       type: forward_command_controller/ForwardCommandController
 
+    blastdog_probe_controller:
+      type: forward_command_controller/ForwardCommandController
+
 upper_arm_controller:
   ros__parameters:
     joints:
@@ -45,4 +48,10 @@ chassis_controller:
   ros__parameters:
     joints:
       - chassis_joint
+    interface_name: velocity
+
+blastdog_probe_controller:
+  ros__parameters:
+    joints:
+      - blastdog_probe_joint
     interface_name: velocity

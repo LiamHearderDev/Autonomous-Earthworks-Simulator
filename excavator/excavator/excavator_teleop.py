@@ -16,7 +16,7 @@ Upper Arm Controls:
     2 - Pitch down
 
 Lower Arm Controls:
-    7 - Pitch ip
+    7 - Pitch up
     5 - Stop
     1 - Pitch down
 
@@ -24,6 +24,11 @@ Chassis Controls:
     4 - Rotate left
     5 - Stop
     6 - Rotate right
+
+BLASTDOG Probe Controls:
+    9 - Raise probe
+    5 - Stop
+    3 - Lower probe
 
 Other Controls:
     q - quit
@@ -238,6 +243,16 @@ def main():
             key_bindings={'4':0.5, '6':-0.5, '5':0.0 }  # Left, Right, Stop
         )
         Nodes.append(chassis_node)
+
+        # BLASTDOG probe - vertical prismatic joint velocity
+        blastdog_probe_node = Float64Publisher(
+            name='blastdog_probe_teleop',
+            link_name='blastdog_probe',
+            joint_name='blastdog_probe_joint',
+            topic='/blastdog_probe_controller/commands',
+            key_bindings={'9': 0.25, '3': -0.25, '5': 0.0},  # Up, Down, Stop
+        )
+        Nodes.append(blastdog_probe_node)
 
     except Exception as e:
         print("Exeception occurred... Exiting teleop.")
