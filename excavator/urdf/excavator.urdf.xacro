@@ -33,12 +33,11 @@
       <geometry>
         <box size="2.0 1.0 0.5"/>
       </geometry>
-      <material name="green"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="2.0 1.0 0.5"/>
+        <mesh filename="package://excavator/meshes/CAT302_Base.obj"/>
       </geometry>
     </collision>
   </link>
@@ -76,7 +75,7 @@
   <joint name="chassis_joint" type="revolute">
     <parent link="base"/>
     <child link="chassis"/>
-    <origin xyz="0 0 1.25" rpy="0 0 0"/>
+    <origin xyz="0.003227 0.24113 1.2527" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
     <limit lower="-1.5708" upper="1.5708" effort="1000" velocity="0.5" />
     <dynamics damping="0.1" friction="0.0"/>
@@ -85,18 +84,17 @@
   <!-- ================= UPPER ARM ================= -->
   <link name="upper_arm">
     <inertial>
-      <origin xyz="0 0 1" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="20.0"/>
       <inertia ixx="7.1167" ixy="0" ixz="0"
            iyy="7.1167" iyz="0"
            izz="0.9000"/>
     </inertial>
     <visual>
-      <origin xyz="0 0 1" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.2" length="2.0"/>
+        <mesh filename="package://excavator/meshes/CAT302_Boom.obj"/>
       </geometry>
-      <material name="green"/>
     </visual>
     <!-- <collision>
       <origin xyz="0 0 1" rpy="0 0 0"/>
@@ -109,7 +107,7 @@
   <joint name="upper_arm_joint" type="revolute">
     <parent link="chassis"/>
     <child link="upper_arm"/>
-    <origin xyz="1.0 0 0.25" rpy="0 0.785398 0"/> <!-- Front + angled 45 degrees. -->
+    <origin xyz="2.58711 0.145316 -0.47084" rpy="0 0 0"/> <!-- Front + angled 45 degrees. -->
     <axis xyz="0 1 0"/>
     <limit lower="-1.5" upper="1.5" effort="1000" velocity="0.5" />
     <dynamics damping="0.5" friction="0.0"/>
@@ -118,29 +116,56 @@
   <!-- ================= LOWER ARM ================= -->
   <link name="lower_arm">
     <inertial>
-      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="1.0"/>
       <inertia ixx="7.1167" ixy="0" ixz="0"
            iyy="7.1167" iyz="0"
            izz="0.9000"/>
     </inertial>
     <visual>
-      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.2" length="1.0"/>
+        <mesh filename="package://excavator/meshes/CAT302_Stick.obj"/>
       </geometry>
-      <material name="green"/>
     </visual>
   </link>
 
   <joint name="lower_arm_joint" type="revolute">
     <parent link="upper_arm"/>
     <child link="lower_arm"/>
-    <origin xyz="0 0 2.0" rpy="0 2.356194 0"/>
+    <origin xyz="4.40739 0 2.31958" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit lower="-2.0" upper="1.0" effort="1000" velocity="0.5" />
     <dynamics damping="0.5" friction="0.0"/>
   </joint>
+  
+  <!-- ================= BUCKET ================= -->
+  <link name="bucket">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="7.1167" ixy="0" ixz="0"
+           iyy="7.1167" iyz="0"
+           izz="0.9000"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://excavator/meshes/CAT302_Bucket.obj"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="bucket_joint" type="revolute">
+    <origin xyz="0.003227 0.00035 -3.11855"/>
+    <parent link="lower_arm"/>
+    <child link="bucket"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-2.0" upper="1.0" effort="1000" velocity="0.5" />
+    <dynamics damping="0.5" friction="0.0"/>
+  </joint>
+
+  <!-- Middle left Wheel xyz = (1.5376, 0, -0.46705) -->
+  <!-- Middle right wheel xyz = (-1.5582, 0, -0.46705) -->
 
   <!-- ================= BACK LEFT WHEEL ================= -->
   <link name="back_left_wheel">
