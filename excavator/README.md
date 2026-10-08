@@ -17,15 +17,27 @@ sudo apt install -y \
     ros-jazzy-cv-bridge
 ```
 
-Build and launch the excavator from the repository root:
-
+From the repository root, navigate to the `excavator` package directory:
 ```bash
 cd excavator
+```
+
+Source the ROS 2 environment:
+```bash
 source /opt/ros/jazzy/setup.bash
+```
+
+Build the excavator from the repository root:
+```bash
 colcon --log-base /dev/null build --symlink-install
 source install/setup.bash
+```
+
+Launch the excavator robot:
+```bash
 ros2 launch excavator robot.launch.py
 ```
+---
 
 In another terminal, start its keyboard controller:
 
