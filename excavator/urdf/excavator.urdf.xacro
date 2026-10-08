@@ -145,11 +145,6 @@
 
   <!-- ================= CAMERA ================= -->
   <link name="camera_link">
-    <visual>
-      <geometry>
-        <box size="0.05 0.05 0.05"/>
-      </geometry>
-    </visual>
     <collision>
       <geometry>
         <box size="0.05 0.05 0.05"/>
@@ -186,7 +181,7 @@
   <joint name="camera_joint" type="fixed">
     <parent link="lower_arm"/>
     <child link="camera_link"/>
-    <origin xyz="0 0.5 0" rpy="0 1.5707 0"/>
+    <origin xyz="0 0.5 0" rpy="0 -1.5707 0"/>
     <axis xyz="0 1 0"/>
   </joint>
 

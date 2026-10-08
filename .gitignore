@@ -63,4 +63,5 @@ __pycache__/
 **/logs
 
 # Screenshots
-excavator/screenshots
+screenshots/*
+!screenshots/README.md
