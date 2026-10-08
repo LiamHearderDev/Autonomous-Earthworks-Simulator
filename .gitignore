@@ -61,3 +61,6 @@ __pycache__/
 **/install
 **/log
 **/logs
+
+# Screenshots
+excavator/screenshots

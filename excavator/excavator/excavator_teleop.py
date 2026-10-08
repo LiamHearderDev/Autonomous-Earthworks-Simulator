@@ -197,8 +197,8 @@ class ScreenshotPublisher(RosNode):
     def takeScreenshot(self):
         try:
             cvImage = self.bridge.imgmsg_to_cv2(self.latestFrame, desired_encoding='bgr8')
-            
-            filename = f'screenshots/excavator_screenshot_{self.screenshotCounter}.png'
+
+            filename = f'./screenshots/excavator_screenshot_{self.screenshotCounter}.png'
             cv2.imwrite(filename, cvImage)
             self.screenshotCounter += 1
             

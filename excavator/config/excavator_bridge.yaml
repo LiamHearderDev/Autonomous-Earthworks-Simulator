@@ -40,4 +40,4 @@
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
-  override_frame_id: "excavator_camera_link" 
+  override_frame_id: "camera_link" 
