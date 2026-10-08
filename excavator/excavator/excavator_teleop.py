@@ -189,12 +189,15 @@ class ScreenshotPublisher(RosNode):
             Image,
             '/rgbd_camera/image', 
             self.imageCallback,
-            10)
+            1)
         
     def imageCallback(self, msg):
         self.latestFrame = msg
             
-    def takeScreenshot(self):
+    def publish(self, value):
+        if not rclpy.ok():
+            return
+
         try:
             cvImage = self.bridge.imgmsg_to_cv2(self.latestFrame, desired_encoding='bgr8')
 
@@ -204,13 +207,6 @@ class ScreenshotPublisher(RosNode):
             
         except Exception as e:
             print(e)
-            pass
-    
-    def publish(self, value):
-        if not rclpy.ok():
-            return
-
-        self.takeScreenshot()
        
 
 def get_key():
