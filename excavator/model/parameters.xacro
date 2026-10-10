@@ -7,8 +7,8 @@
     <!-- ros2_control parameters -->
     <xacro:property name="control_update_rate" value="100"/>
 
-    <xacro:property name="upper_arm_command_interface" value="velocity"/>
-    <xacro:property name="lower_arm_command_interface" value="velocity"/>
+    <xacro:property name="upper_arm_command_interface" value="position"/>
+    <xacro:property name="lower_arm_command_interface" value="position"/>
     <xacro:property name="chassis_command_interface" value="velocity"/>
 
     <xacro:property name="upper_arm_velocity_limit" value="0.5"/>
