@@ -31,7 +31,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://excavator/meshes/CAT302_Base.obj"/>
+        <mesh filename="package://excavator/meshes/CAT302_Base_Collision.obj"/>
       </geometry>
     </visual>
     <collision>
