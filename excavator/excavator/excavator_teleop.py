@@ -124,6 +124,7 @@ class JointTrajectoryPublisher(RosNode):
             10,
         )
 
+
     def joint_state_callback(self, message):
         
         if self.joint_name in message.name:
@@ -131,18 +132,14 @@ class JointTrajectoryPublisher(RosNode):
         else:
             print(f"did NOT find in joint state callback. Here it is: \n---\n{message}\n---")
 
+
     def publish(self, direction):
-        if not rclpy.ok():
-            print("rclpy not ok")
-            return
-        if self.joint_position is None:
-            print("Joint position is None")
+        if not rclpy.ok() or self.joint_position is None:
             return
 
         trajectory = self.generate_trajectory(direction, self.joint_position)
-        
-
         self.publisher.publish(trajectory)
+
 
     def generate_trajectory(self, direction, current_position=None):
         """ Generates a series of points for a JointTrajectory message based on the current joint position, 
@@ -186,6 +183,7 @@ class JointTrajectoryPublisher(RosNode):
                 )
                 trajectory.points.append(point)
         return trajectory
+
 
     def test_generate_trajectory(self):
         """Test the generate_trajectory method with various inputs."""
@@ -281,8 +279,8 @@ def main():
             joint_name='upper_arm_joint',
             topic='/upper_arm_controller/joint_trajectory',
             key_bindings={'8':-0.5, '2':0.5, '5': 0.0 },  # Up, Down, Stop
-            lower_limit=-0.2,
-            upper_limit=0.2,
+            lower_limit=-0.5,
+            upper_limit=0.5,
             rad_per_sec=0.2,
         )
         Nodes.append(upper_arm_node)
@@ -294,8 +292,8 @@ def main():
             joint_name='lower_arm_joint',
             topic='/lower_arm_controller/joint_trajectory',
             key_bindings={'7':-0.5, '1':0.5, '5': 0.0 },  # Up, Down, Stop
-            lower_limit=-0.2,
-            upper_limit=0.2,
+            lower_limit=-0.5,
+            upper_limit=0.5,
             rad_per_sec=0.2,
         )
         Nodes.append(lower_arm_node)

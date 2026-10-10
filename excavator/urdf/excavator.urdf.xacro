@@ -109,7 +109,7 @@
     <child link="upper_arm"/>
     <origin xyz="2.58711 0.145316 -0.47084" rpy="0 0 0"/> <!-- Front + angled 45 degrees. -->
     <axis xyz="0 1 0"/>
-    <limit lower="-2.0" upper="2.0" effort="1000" velocity="0.5" />
+    <limit lower="-3.0" upper="3.0" effort="1000" velocity="0.5" />
     <dynamics damping="0.5" friction="0.0"/>
   </joint>
 
