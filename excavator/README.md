@@ -14,7 +14,8 @@ sudo apt install -y \
     ros-jazzy-gz-ros2-control \
     ros-jazzy-ros2-controllers \
     ros-jazzy-rviz2 \
-    ros-jazzy-cv-bridge
+    ros-jazzy-cv-bridge \
+    ros-jazzy-moveit-py
 ```
 
 From the repository root, navigate to the `excavator` package directory:

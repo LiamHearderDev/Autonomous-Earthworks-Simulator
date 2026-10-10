@@ -50,9 +50,11 @@ from rclpy.node import Node as RosNode
 
 from std_msgs.msg import Float64MultiArray
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, PoseStamped
 
 from sensor_msgs.msg import JointState, Image # For receiving data from the Joints
+
+from moveit.planning import MoveItPy # MoveIt library for IK
 
 
 
@@ -186,7 +188,7 @@ class ScreenshotPublisher(RosNode):
         self.screenshotCounter = 0
         
         self.imageSub = self.create_subscription(
-            Image,
+            Image, 
             '/rgbd_camera/image', 
             self.imageCallback,
             1)
@@ -225,6 +227,7 @@ def main():
     try:
         tty.setcbreak(sys.stdin.fileno())
         rclpy.init()
+        
 
         # ====== Set up all publishing nodes ====== #
         Nodes: list[RosNode] = []
@@ -300,7 +303,24 @@ def main():
     # ====== MAIN LOOP ====== #
     try:
         while True:
-
+            excavatorIK = MoveItPy(node_name="excavator")
+                    
+            chassis = excavatorIK.get_planning_component("chassis")
+            
+            target = PoseStamped()
+            target.header.frame_id = "chassis"
+            target.pose.position.x = 5.0
+            target.pose.position.y = 5.0
+            target.pose.position.z = 5.0
+            target.pose.orientation.w = 1.0
+            
+            chassis.set_start_state_to_current_state()
+            chassis.set_goal_state(pose_stamped=target, pose_link="chassis")
+            
+            planResult = chassis.plan()
+            
+            excavatorIK.execute(planResult.trajectory, blocking=True)
+            
             for node in Nodes:
                 rclpy.spin_once(node, timeout_sec=0.001)
 

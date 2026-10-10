@@ -1,0 +1,10 @@
+# Default initial positions for excavator's ros2_control fake system
+
+initial_positions:
+  back_left_wheel_joint: 0
+  back_right_wheel_joint: 0
+  chassis_joint: 0
+  front_left_wheel_joint: 0
+  front_right_wheel_joint: 0
+  middle_left_wheel_joint: 0
+  middle_right_wheel_joint: 0

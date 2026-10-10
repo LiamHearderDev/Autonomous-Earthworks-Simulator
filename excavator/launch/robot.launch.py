@@ -26,6 +26,7 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import Command
+from moveit_configs_utils import MoveItConfigsBuilder
 
 
 def generate_launch_description():
@@ -154,6 +155,30 @@ def generate_launch_description():
         arguments=["/rgbd_camera/image"],
         output="screen"
     )
+    
+    # ---- ROS <-> Gazebo Inverse Kinematics (MoveIt2) ------------------------
+    moveit_config = MoveItConfigsBuilder("excavator", package_name="excavator").to_moveit_configs()
+    
+    
+    # ---- Process the xacro/URDF into robot_description ---------------------
+    srdfPath = os.path.join(pkg_share, "config", robot_name + ".srdf")
+    with open(srdfPath, 'r') as f:
+        srdf = f.read()
+    srdfDesc = {
+        "robot_description_semantic": srdf
+    }
+    kinematicsPath = os.path.join(pkg_share, "config", "kinematics.yaml")
+    
+    excavator_ik_node = Node(
+        package='excavator',
+        executable='excavator_teleop',
+        output='screen',
+        parameters=[
+            robot_description,
+            srdfDesc,
+            kinematicsPath
+        ]
+    )
 
     # ---- ROS <-> Gazebo bridge ----------------------------------------------
     bridge_config = PathJoinSubstitution(
@@ -185,6 +210,8 @@ def generate_launch_description():
             lower_arm_controller,
             chassis_controller,
             camera_bridge,
-            camera_view
+            camera_view,
+            excavator_ik_node
         ]
     )
+
