@@ -1,10 +1,40 @@
 # Autonomous Earthworks Simulator
 
-This repository contains ROS 2 and Gazebo simulations for a bulldozer and an
-excavator.
+This repository is designed to simulate autonomous earthworks vehicles in a virtual environment using ROS2 Jazzy-Jalisco and Gazebo Harmonic. It provides models and controls for an excavator, allowing users to interact with these machines in a simulated setting. The excavator is based on the CAT 302 CR Mini Excavator model, and can be equipped with either a bucket or a Blast-Dog probe attachment. 
 
-Run the simulator from the repository root by passing the machine and
-environment names:
+
+## 1. Installation
+### Ubuntu 24.04
+By far the simplest way to run the project is to use the provided Dockerfile. This will set up a containerized environment with all necessary dependencies, including ROS2 Jazzy-Jalisco and Gazebo Harmonic.
+
+To build the Dockerfile, run the following command:
+```bash
+docker pull liamhearderdev/earthworks:latest
+```
+
+Then run the container with the following command, replacing `/path/to/project` with the path to your local copy of the repository:
+
+```bash
+docker run --rm \
+  -v ./:/Autonomous-Earthworks-Simulator \
+  -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+  -e DISPLAY=$DISPLAY \
+  -e GZ_SIM_RESOURCE_PATH=${GZ_SIM_RESOURCE_PATH}:$(pwd) \
+  -it liamhearderdev/earthworks \
+  /bin/bash
+```
+
+Progress to section 2. Usage below to run the simulator.
+
+### MacOS
+Use the docker file.
+
+### Windows
+WSL
+
+
+## 2. Usage
+Run the simulator from the repository root by passing the machine and environment names:
 
 ```bash
 ./earthworks cat-302-cr goose
@@ -14,6 +44,11 @@ Machines are `cat-302-cr` and `blast-dog`; environments are `goose` and `empty`.
 The command loads the ROS 2 environment and launches Gazebo with the chosen
 world. Until its own simulation model is added, `blast-dog` temporarily uses the
 CAT excavator model. Run `./earthworks --help` to display the available values.
+
+
+
+
+
 
 ## Packages
 
