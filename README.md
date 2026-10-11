@@ -40,12 +40,7 @@ MacOS is currently unsupported. To run the project on MacOS, dual-booting or usi
 
 
 # 2. Setup
-To begin the setup process, first navigate to the project's root directory:
-```bash
-cd Autonomous-Earthworks-Simulator
-```
-
-Run the build script:
+To begin the setup process, run the build script:
 ```bash
 source scripts/build.bash
 ```
