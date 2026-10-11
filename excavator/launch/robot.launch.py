@@ -21,6 +21,7 @@ from launch.actions import (
     IncludeLaunchDescription,
     SetEnvironmentVariable,
 )
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -53,9 +54,15 @@ def generate_launch_description():
         default_value="true",
         description="Use simulation clock",
     )
+    enable_gnss_arg = DeclareLaunchArgument(
+        "enable_gnss",
+        default_value="true",
+        description="Enable or disable simulated GNSS outputs",
+    )
 
     world = LaunchConfiguration("world")
     use_sim_time = LaunchConfiguration("use_sim_time")
+    enable_gnss = LaunchConfiguration("enable_gnss")
 
     # ---- Process the xacro/URDF into robot_description ---------------------
     xacro_file = os.path.join(pkg_share, "urdf", robot_name + ".urdf.xacro")
@@ -151,6 +158,19 @@ def generate_launch_description():
         output="screen",
     )
 
+    # ---- Simulated GNSS ----------------------------------------------------
+    gnss_config = PathJoinSubstitution(
+        [FindPackageShare(pkg_name), "config", "gnss.yaml"]
+    )
+    gnss_node = Node(
+        package=pkg_name,
+        executable="gnss_node",
+        name="gnss_node",
+        parameters=[gnss_config, {"use_sim_time": use_sim_time}],
+        condition=IfCondition(enable_gnss),
+        output="screen",
+    )
+
     return LaunchDescription(
         [
             SetEnvironmentVariable(
@@ -159,6 +179,7 @@ def generate_launch_description():
             ),
             world_arg,
             use_sim_time_arg,
+            enable_gnss_arg,
             robot_state_publisher,
             gz_sim,
             spawn_robot,
@@ -166,6 +187,7 @@ def generate_launch_description():
             joint_state_broadcaster,
             upper_arm_controller,
             lower_arm_controller,
-            chassis_controller
+            chassis_controller,
+            gnss_node,
         ]
     )
