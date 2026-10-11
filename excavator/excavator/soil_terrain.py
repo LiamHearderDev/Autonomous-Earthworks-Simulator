@@ -42,11 +42,17 @@ class HeightGrid:
             order='C'
             )
 
+    def to_local_coords(self, x, y) -> tuple[int, int]:
+        """ Converts a world position (x,y) to a local grid cell. Does not
+        check if the result is out of bounds. """
+        cell_x = (x - self.params.origin[0]) / self.params.cell_size
+        cell_y = (y - self.params.origin[1]) / self.params.cell_size
+        return cell_x, cell_y
+
     def is_in_bounds(self, x, y) -> bool:
         """ Checks if, given an (x,y) world coordinate, a world location is
         within the bounds of the grid. """
-        cell_x = (x - self.params.origin[0]) / self.params.cell_size
-        cell_y = (y - self.params.origin[1]) / self.params.cell_size
+        cell_x, cell_y = self.to_local_coords(x, y)
 
         cell_count = self.params.grid_cells
         return (0 <= cell_x < cell_count - 1) and (0 <= cell_y < cell_count - 1)
@@ -57,6 +63,9 @@ class HeightGrid:
 
         if not self.is_in_bounds(x, y):
             return 0.0
+        
+        cell_x, cell_y = self.to_local_coords(x, y)
+
 
         return 0.0
 
