@@ -1,0 +1,6 @@
+# docker run --rm -it \
+#   earthworks \
+#   -v /path/to/project:/Autonomous-Earthworks-Simulator \
+#   -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+#   -e DISPLAY=$DISPLAY \
+#   /bin/bash

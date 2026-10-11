@@ -1,7 +1,7 @@
 # Blender 5.2.2 LTS MTL File: 'CAT302.blend'
 # www.blender.org
 
-newmtl TreadColor
+newmtl TreadColor.005
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.024158 0.024158 0.024158
@@ -11,7 +11,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 
-newmtl TreadEngineColor
+newmtl TreadEngineColor.006
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.046665 0.046665 0.046665
