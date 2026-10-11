@@ -157,27 +157,23 @@ def generate_launch_description():
     )
     
     # ---- ROS <-> Gazebo Inverse Kinematics (MoveIt2) ------------------------
-    moveit_config = MoveItConfigsBuilder("excavator", package_name="excavator").to_moveit_configs()
-    
-    
-    # ---- Process the xacro/URDF into robot_description ---------------------
-    srdfPath = os.path.join(pkg_share, "config", robot_name + ".srdf")
-    with open(srdfPath, 'r') as f:
-        srdf = f.read()
-    srdfDesc = {
-        "robot_description_semantic": srdf
-    }
-    kinematicsPath = os.path.join(pkg_share, "config", "kinematics.yaml")
+    moveit_config = (
+        MoveItConfigsBuilder("excavator", package_name="excavator")
+        .robot_description(file_path=os.path.join(pkg_share, "urdf", robot_name + ".urdf.xacro"))
+        .robot_description_semantic(file_path=os.path.join(pkg_share, "config", robot_name + ".srdf"))
+        .robot_description_kinematics(file_path=os.path.join(pkg_share, "config", "kinematics.yaml"))
+        .trajectory_execution(file_path=os.path.join(pkg_share, "config", "controllers.yaml"))
+        .to_dict()
+    )
     
     excavator_ik_node = Node(
         package='excavator',
         executable='excavator_teleop',
         output='screen',
         parameters=[
-            robot_description,
-            srdfDesc,
-            kinematicsPath
-        ]
+            moveit_config,
+            {"use_sim_time": use_sim_time}
+        ],
     )
 
     # ---- ROS <-> Gazebo bridge ----------------------------------------------

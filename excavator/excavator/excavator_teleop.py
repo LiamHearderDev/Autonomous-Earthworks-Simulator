@@ -221,12 +221,12 @@ def get_key():
     return None
 
 
-def main():
+def main(args=None):
     settings = termios.tcgetattr(sys.stdin)
 
     try:
         tty.setcbreak(sys.stdin.fileno())
-        rclpy.init()
+        rclpy.init(args=args)
         
 
         # ====== Set up all publishing nodes ====== #
@@ -299,13 +299,15 @@ def main():
 
     # ====== Prints the explanation / controls to the terminal ====== #
     print(__doc__)
+    
+    excavatorIK = MoveItPy(node_name="excavator_teleop")
+                        
+    chassis = excavatorIK.get_planning_component("main")
 
     # ====== MAIN LOOP ====== #
     try:
         while True:
-            excavatorIK = MoveItPy(node_name="excavator")
-                    
-            chassis = excavatorIK.get_planning_component("chassis")
+            
             
             target = PoseStamped()
             target.header.frame_id = "chassis"
@@ -315,7 +317,7 @@ def main():
             target.pose.orientation.w = 1.0
             
             chassis.set_start_state_to_current_state()
-            chassis.set_goal_state(pose_stamped=target, pose_link="chassis")
+            chassis.set_goal_state(pose_stamped_msg=target, pose_link="chassis")
             
             planResult = chassis.plan()
             
