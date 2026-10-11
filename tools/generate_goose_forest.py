@@ -88,6 +88,19 @@ roughness = rng.normal(0, 0.0035, (N, N))
 terrain += (roughness * (1 - 0.88 * trail_mask) * (1 - 0.80 * work_area))
 terrain = np.clip(terrain, 0.12, 0.88)
 
+# 8. DEFORMABLE TERRAIN RESERVE
+
+dig_center_x = 0.0
+dig_center_y = -0.20
+dig_half_size = 0.06
+
+dig_zone = (
+    (np.abs(X - dig_center_x) <= dig_half_size)
+    & (np.abs(Y - dig_center_y) <= dig_half_size)
+)
+
+terrain[dig_zone] = 0.0
+
 heightmap = (terrain * 255).astype(np.uint8)
 
 heightmap_path = (OUTPUT_DIR/ "goose_forest_heightmap.png")
