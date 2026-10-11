@@ -1,6 +1,6 @@
 #!/bin/bash
-cd excavator/
-rm -r build && rm -r install && rm -r log
+cd excavator/ || exit 1
+rm -rf build/ install/ log/
 colcon build --symlink-install
 source install/setup.bash
 source /opt/ros/jazzy/setup.bash
