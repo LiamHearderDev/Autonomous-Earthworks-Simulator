@@ -1,36 +1,25 @@
 #!/usr/bin/env python3
 """
-Keyboard teleop for the excavator. Designed to be operated using the 
-numpad.
+-----------------------------------------------
+Movement Controls:          Chassis Controls:
+    W - Forward                 4 - Rotate left
+    A - Left                    5 - Stop
+    S - Back                    6 - Rotate right
+    D - Right                   
+    X - Stop                    
 
-Movement Controls:
-    W - Forward
-    A - Left
-    S - Back
-    D - Right
-    X - Stop
-
-Upper Arm Controls:
-    8 - Pitch up
-    5 - Stop
-    2 - Pitch down
-
-Lower Arm Controls:
-    7 - Pitch ip
-    5 - Stop
-    1 - Pitch down
-
-Chassis Controls:
-    4 - Rotate left
-    5 - Stop
-    6 - Rotate right
+Boom Controls:              Stick Controls:
+    8 - Pitch up                7 - Pitch ip
+    5 - Stop                    5 - Stop
+    2 - Pitch down              1 - Pitch down
 
 Other Controls:
     q - quit
     Ctrl-C - quit
 
-Publishes Float64MultiArray velocity commands for the chassis and
-JointTrajectory position commands for the upper arm.
+Press the corresponding keys on your keyboard
+to control the excavator!
+-----------------------------------------------
 """
 
 import math
