@@ -27,3 +27,18 @@ Per-step loop?
 Dumping?
 - When the bucket is rotated past a threshold angle and the payload > 0, deposit the payload into cells around the bucket's ground projection.
 - The heights of the nearby cells would be increased, and the bucket's payload counter would be decreased.
+
+
+# Classes
+## SoilParams
+- A dataclass that contains all of the data required by this system.
+
+## HeightGrid
+- A NumPy heightfield. Handles bilinear lookup, cutting a cell down (which returns removed volumed), and raising a cell up.
+
+## SoilModel
+- Designed to handle physics updates, and visual model changes.
+
+## SoilNode
+- The only part that imports ROS. This is to ensure adequate testing can take place without needing to launch Gazebo.
+- Subscribes to bucket pose, estimates velocity by finite difference, and publishes a Wrench.
