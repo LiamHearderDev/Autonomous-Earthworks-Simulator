@@ -151,6 +151,16 @@ def generate_launch_description():
         output="screen",
     )
 
+    # ---- Deformable Terrain System ------------------------------------------
+    soil_node = Node(
+        package="excavator",
+        executable="soil_terrain",
+        parameters=[
+            {'use_sim_time': use_sim_time}
+        ],
+        output="screen",
+    )
+
     return LaunchDescription(
         [
             SetEnvironmentVariable(
@@ -166,6 +176,7 @@ def generate_launch_description():
             joint_state_broadcaster,
             upper_arm_controller,
             lower_arm_controller,
-            chassis_controller
+            chassis_controller,
+            soil_node
         ]
     )

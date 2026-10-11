@@ -53,6 +53,7 @@ setup(
         'console_scripts': [
             # Add here any Python nodes you write
             'excavator_teleop = excavator.excavator_teleop:main',
+            'soil_terrain = excavator.soil_terrain:main',
         ],
     },
 )
