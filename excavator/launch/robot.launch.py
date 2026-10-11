@@ -142,18 +142,26 @@ def generate_launch_description():
     camera_bridge = Node(
             package="ros_gz_image",
             executable="image_bridge",
-            arguments=["/rgbd_camera/image"],
+            arguments=["/cam1/rgbd_camera/image", "/cam2/rgbd_camera/image"],
             output="screen",
             parameters=[{"use_sim_time": use_sim_time}],
         )
     
-    camera_view = Node(
+    camera_view1 = Node(
         package="rqt_image_view",
         executable="rqt_image_view",
-        name="camera_view",
-        arguments=["/rgbd_camera/image"],
+        name="camera_view1",
+        arguments=["/cam1/rgbd_camera/image"],
         output="screen"
     )
+    
+    camera_view2 = Node(
+            package="rqt_image_view",
+            executable="rqt_image_view",
+            name="camera_view2",
+            arguments=["/cam2/rgbd_camera/image"],
+            output="screen"
+        )
 
     # ---- ROS <-> Gazebo bridge ----------------------------------------------
     bridge_config = PathJoinSubstitution(
@@ -185,6 +193,7 @@ def generate_launch_description():
             lower_arm_controller,
             chassis_controller,
             camera_bridge,
-            camera_view
+            camera_view1,
+            camera_view2
         ]
     )

@@ -26,7 +26,8 @@ Chassis Controls:
     6 - Rotate right
 
 Camera Controls:
-    F - Take Camera Shot
+    G - Take Photo (Camera 1)
+    H - Take Photo (Camera 2)
 
 Other Controls:
     q - quit
@@ -245,7 +246,7 @@ class TwistPublisher(RosNode):
 ### TwistPublisher ###
 
 class ScreenshotPublisher(RosNode):
-    def __init__(self, name: str, key_bindings: dict):
+    def __init__(self, name: str, key_bindings: dict, id:int):
         super().__init__(name)
         self.name = name
 
@@ -253,10 +254,11 @@ class ScreenshotPublisher(RosNode):
         self.key_bindings = key_bindings
         self.latestFrame = None
         self.screenshotCounter = 0
+        self.id = id
         
         self.imageSub = self.create_subscription(
             Image,
-            '/rgbd_camera/image', 
+            f"/cam{self.id}/rgbd_camera/image", 
             self.imageCallback,
             1)
         
@@ -347,11 +349,17 @@ def main():
         )
         Nodes.append(chassis_node)
         
-        screenshot_node = ScreenshotPublisher(
-            name="screenshot_teleop",
-            key_bindings={'f':0}
+        screenshot_node1 = ScreenshotPublisher(
+            name="screenshot_teleop1",
+            key_bindings={'g':0}
         )
-        Nodes.append(screenshot_node)
+        Nodes.append(screenshot_node1)
+        
+        screenshot_node2 = ScreenshotPublisher(
+            name="screenshot_teleop2",
+            key_bindings={'h':0}
+        )
+        Nodes.append(screenshot_node2)
 
     except Exception as e:
         print("Exeception occurred... Exiting teleop.")
