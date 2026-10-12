@@ -34,3 +34,17 @@
   ros_type_name: "rosgraph_msgs/msg/Clock"
   gz_type_name: "gz.msgs.Clock"
   direction: GZ_TO_ROS
+
+- ros_topic_name: "/cam1/rgbd_camera/image"
+  gz_topic_name: "/cam1/rgbd_camera/image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+  override_frame_id: "camera1_link" 
+
+- ros_topic_name: "/cam2/rgbd_camera/image"
+  gz_topic_name: "/cam2/rgbd_camera/image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+  override_frame_id: "camera2_link" 
