@@ -156,7 +156,11 @@ def generate_launch_description():
         package="excavator",
         executable="soil_terrain",
         parameters=[
-            {'use_sim_time': use_sim_time}
+            {
+                'use_sim_time': use_sim_time,
+                'robot_name': robot_name,
+                'world_path': world
+            }
         ],
         output="screen",
     )

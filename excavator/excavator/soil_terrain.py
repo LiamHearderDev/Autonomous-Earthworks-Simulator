@@ -2,11 +2,12 @@
 
 # This is where the code for the deformable soil terrain system will be placed.
 
+import time
 import rclpy
 from rclpy.node import Node as RosNode
 
-from gz.transport13 import GzNode
-from gz.msgs10.pose_v_pb2 import Pose_V     # Vector of poses
+from gz.transport13 import Node as GzNode
+from geometry_msgs.msg import PoseStamped   # ROS2 type for pose
 import numpy as np
 
 
@@ -114,10 +115,9 @@ class SoilModel:
     def try_dump(self, position) -> None:
         """ TODO: Should check if the world's up-axis (relative to model) is 
         below the dump threshold. If it is, dump out the contents. """
+
+        # Check bounds
         return
-
-
-
 ### SoilModel ###          
 
 
@@ -132,6 +132,25 @@ class SoilNode(RosNode):
         self.grid = HeightGrid(self.params)
         self.model = SoilModel(self.params, self.grid)
 
+        self.declare_parameter("robot_name", "")
+        self.declare_parameter("world_path", "")
+
+        robot_name: str = self.get_parameter("robot_name").value
+        world_name: str = self.get_parameter("world_path").value.split("/")[-1].split(".")[0]
+
+        pose_topic: str = "/world/" + world_name + "/pose/info"
+
+        print(f"Subscribing to {pose_topic}")
+        self.subscription = self.create_subscription(
+            PoseStamped,
+            pose_topic,
+            self.pose_callback,
+            10
+        )
+
+
+        # topic_listener = TopicListener(pose_topic, self.pose_callback)
+
         # TODO: Get info about things like world position here
 
         # TODO: Get the name of the current environment
@@ -142,21 +161,31 @@ class SoilNode(RosNode):
         #   visual step. 
     pass
 
+    def pose_callback(self, msg: Pose_V) -> None:
+        """ Called when a new pose message is received. """
+        if len(msg.pose) == 0:
+            return
+
+        print(f"msg = {msg}")
+
+
+
 ### SoilNode ###
 
 
 def main(args=None):
+    rclpy.init()
 
+    soil_node = SoilNode()
 
-
-    # soil_node = SoilNode(
-    #     gz_name="soil_field",
-    #     size_x=100, 
-    #     size_y=100, 
-    #     max_height=3.0,
-    #     cell_size=1.0,
-    #     )
-
+    counter = 0
+    while True:
+        rclpy.spin_once(soil_node, timeout_sec=0.001)
+        time.sleep(1.0)
+        counter += 1
+        if counter > 30:
+            break
+    
 
     return
 
