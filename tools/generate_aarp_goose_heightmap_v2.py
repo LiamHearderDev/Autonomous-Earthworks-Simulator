@@ -58,7 +58,6 @@ road_shoulders = (
 )
 terrain += 0.018 * road_shoulders
 
-# Large rectangular working pad
 aarp_pad = np.exp(
     -(
         ((X + 0.02) / 0.62) ** 16
@@ -68,7 +67,6 @@ aarp_pad = np.exp(
 
 terrain = terrain * (1 - 0.94 * aarp_pad) + 0.49 * (0.94 * aarp_pad)
 
-# Bund around the rectangular test area
 outer_rect = np.exp(
     -(
         ((X + 0.02) / 0.69) ** 18
@@ -119,9 +117,9 @@ terrain += 0.13 * bund * (1 - 0.98 * south_opening) * (1 - 0.95 * east_opening)
 # 6. EARTH MOUNDS
 
 piles = [
-    (-0.70, 0.43, 0.22, 0.12, 0.10),
-    (-0.48, 0.43, 0.18, 0.11, 0.09),
-    (-0.27, 0.43, 0.15, 0.10, 0.085),
+    (-0.70, 0.43, 0.24, 0.12, 0.10),
+    (-0.48, 0.43, 0.20, 0.11, 0.09),
+    (-0.27, 0.43, 0.17, 0.10, 0.085),
 ]
 
 for cx, cy, amplitude, sx, sy in piles:
@@ -150,10 +148,11 @@ terrain -= 0.05 * scrape
 
 # 9. DIG HOLE 
 
-dig_x_min = 0.18
-dig_x_max = 0.28
-dig_y_min = -0.12
-dig_y_max = -0.02
+dig_x_min = -0.06
+dig_x_max =  0.06
+
+dig_y_min = -0.26
+dig_y_max = -0.14
 
 dig_zone = (
     (X >= dig_x_min) & (X <= dig_x_max) &
@@ -163,8 +162,8 @@ terrain[dig_zone] = 0.06
 
 dig_zone_soft = np.exp(
     -(
-        ((X - 0.23) / 0.075) ** 8
-        + ((Y + 0.07) / 0.075) ** 8
+        ((X - 0.0) / 0.075) ** 8
+        + ((Y + 0.20) / 0.075) ** 8
     )
 )
 terrain = np.minimum(terrain, terrain * (1 - 0.35 * dig_zone_soft) + 0.08 * (0.35 * dig_zone_soft))
@@ -177,6 +176,30 @@ terrain += (
     * (1 - 0.90 * secondary_pad)
     * (1 - 0.85 * road)
 )
+
+stockpiles = [
+    (-0.55, 0.48, 0.18, 0.11, 0.09),
+    (-0.35, 0.50, 0.15, 0.10, 0.085),
+    (-0.17, 0.48, 0.12, 0.09, 0.075),
+]
+
+for cx, cy, amplitude, sx, sy in stockpiles:
+    pile = np.exp(
+        -(
+            ((X - cx) / sx) ** 2
+            + ((Y - cy) / sy) ** 2
+        ) * 1.8
+    )
+    terrain += amplitude * pile
+
+loading_ramp = np.exp(
+    -(
+        ((X - 0.55) / 0.18) ** 6
+        + ((Y - 0.42) / 0.16) ** 6
+    )
+)
+
+terrain += 0.10 * loading_ramp
 
 terrain = np.clip(terrain, 0.04, 0.88)
 heightmap = (terrain * 255).astype(np.uint8)
@@ -213,12 +236,22 @@ broad_img = broad_img.resize(
 
 b = np.asarray(broad_img, dtype=float) / 255.0
 
-# Texture coordinate grid
 tx = np.linspace(-1, 1, texture_size)
 ty = np.linspace(-1, 1, texture_size)
 TX, TY = np.meshgrid(tx, ty)
 
-# Rectangular haul-road loop around the main test pad
+track_a = (
+    np.exp(-((TX + 0.14) / 0.018) ** 2)
+    * np.exp(-((TY + 0.05) / 0.34) ** 8)
+)
+
+track_b = (
+    np.exp(-((TX + 0.06) / 0.018) ** 2)
+    * np.exp(-((TY + 0.05) / 0.34) ** 8)
+)
+
+track_mask = np.clip(track_a + track_b, 0, 1)
+
 outer_road = (
     (np.abs(TX + 0.02) <= 0.72)
     & (np.abs(TY + 0.02) <= 0.54)
@@ -231,13 +264,11 @@ inner_road = (
 
 perimeter_road = outer_road & (~inner_road)
 
-# Long haul lane on right side
 right_haul_road = (
     (np.abs(TX - 0.58) <= 0.09)
     & (np.abs(TY + 0.02) <= 0.78)
 )
 
-# Access road across lower part of site
 access_road = (
     (np.abs(TY + 0.58) <= 0.08)
     & (np.abs(TX + 0.02) <= 0.80)
@@ -249,14 +280,18 @@ road_mask = (
     | access_road
 ).astype(float)
 
+road_mask_img = Image.fromarray(
+    (road_mask * 255).astype(np.uint8)
+)
 
+road_mask_img = road_mask_img.filter(
+    ImageFilter.GaussianBlur(radius=3.0)
+)
 
+road_mask = (
+    np.asarray(road_mask_img, dtype=float) / 255.0
+)
 
-
-
-
-
-# Main sandy terrain
 sand_r = np.clip(
     166 + (n - 0.5) * 22 + (b - 0.5) * 12,
     0, 255
@@ -272,7 +307,6 @@ sand_b = np.clip(
     0, 255
 )
 
-# Compacted darker haul-road dirt
 road_r = np.clip(
     118 + (n - 0.5) * 18,
     0, 255
@@ -307,6 +341,10 @@ rgb[..., 2] = (
     sand_b * (1 - road_mask)
     + road_b * road_mask
 ).astype(np.uint8)
+
+rgb[..., 0] = (rgb[..., 0] * (1 - 0.18 * track_mask)).astype(np.uint8)
+rgb[..., 1] = (rgb[..., 1] * (1 - 0.18 * track_mask)).astype(np.uint8)
+rgb[..., 2] = (rgb[..., 2] * (1 - 0.18 * track_mask)).astype(np.uint8)
 
 Image.fromarray(
     rgb,

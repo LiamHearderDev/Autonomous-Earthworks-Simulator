@@ -26,8 +26,8 @@
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
       <pose>0 0 30 0 0 0</pose>
-      <diffuse>0.95 0.93 0.85 1</diffuse>
-      <specular>0.20 0.20 0.20 1</specular>
+      <diffuse>0.7 0.7 0.7 1</diffuse>
+      <specular>0.0 0.0 0.0 1</specular>
       <direction>-0.4 0.3 -1</direction>
     </light>
 
@@ -353,8 +353,6 @@
       <name>oak_bush_7</name>
       <pose>32 -12 0.1 0 0 0.8</pose>
     </include>
-
-    <!-- Fill sparser grassy side -->
 
     <include>
       <uri>model://PineTreeTall</uri>

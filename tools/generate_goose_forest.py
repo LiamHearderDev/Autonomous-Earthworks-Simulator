@@ -15,8 +15,6 @@ y = np.linspace(-1, 1, N)
 
 X, Y = np.meshgrid(x, y)
 
-# BASE TERRAIN
-
 terrain = np.full((N, N), 0.42, dtype=float)
 
 # 1. LARGE-SCALE NATURAL TERRAIN VARIATION
@@ -102,9 +100,7 @@ dig_zone = (
 terrain[dig_zone] = 0.0
 
 heightmap = (terrain * 255).astype(np.uint8)
-
 heightmap_path = (OUTPUT_DIR/ "goose_forest_heightmap.png")
-
 Image.fromarray(heightmap,mode="L").save(heightmap_path)
 
 texture_size = 512
@@ -123,11 +119,8 @@ broad_img = broad_img.resize((texture_size, texture_size),Image.Resampling.BICUB
 
 b = (np.asarray(broad_img,dtype=float) / 255.0)
 
-# ---------------------------------------------------------
 # FOREST FLOOR + VISIBLE DIRT TRAIL
-# ---------------------------------------------------------
 
-# Texture coordinate grid
 tx = np.linspace(-1, 1, texture_size)
 ty = np.linspace(-1, 1, texture_size)
 TX, TY = np.meshgrid(tx, ty)
@@ -150,15 +143,12 @@ work_texture_mask = np.exp(
     )
 )
 
-# Combined dirt area
 dirt_mask = np.maximum(
     trail_texture_mask,
     work_texture_mask
 )
 
-# ---------------------------------------------------------
 # FOREST / GRASS COLOUR
-# ---------------------------------------------------------
 
 forest_r = np.clip(
     72
@@ -184,9 +174,7 @@ forest_b = np.clip(
     255
 )
 
-# ---------------------------------------------------------
 # DIRT ROAD COLOUR
-# ---------------------------------------------------------
 
 dirt_r = np.clip(
     125
@@ -209,9 +197,7 @@ dirt_b = np.clip(
     255
 )
 
-# ---------------------------------------------------------
 # BLEND FOREST AND DIRT
-# ---------------------------------------------------------
 
 rgb = np.zeros(
     (texture_size, texture_size, 3),
@@ -244,9 +230,7 @@ Image.fromarray(
 ).save(diffuse_path)
 
 
-# ---------------------------------------------------------
 # NORMAL MAP
-# ---------------------------------------------------------
 
 normal = np.zeros(
     (texture_size, texture_size, 3),
@@ -266,11 +250,6 @@ Image.fromarray(
     normal,
     mode="RGB"
 ).save(normal_path)
-
-
-# ---------------------------------------------------------
-# FINISHED
-# ---------------------------------------------------------
 
 print("GOOSE-inspired forest resources generated:")
 

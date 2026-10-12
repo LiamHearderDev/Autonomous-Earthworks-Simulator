@@ -13,15 +13,60 @@
     <light name="sun" type="directional">
       <cast_shadows>true</cast_shadows>
       <pose>0 0 30 0 0 0</pose>
-      <diffuse>0.95 0.92 0.84 1</diffuse>
-      <specular>0.20 0.20 0.20 1</specular>
-      <direction>-0.4 0.3 -1</direction>
+      <diffuse>0.7 0.7 0.7 1</diffuse>
+      <specular>0.0 0.0 0.0 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
     </light>
+
+    <gui fullscreen="0">
+
+      <plugin filename="MinimalScene" name="3D View">
+        <gz-gui>
+          <title>3D View</title>
+          <property type="bool" key="showTitleBar">false</property>
+          <property type="string" key="state">docked</property>
+        </gz-gui>
+
+        <engine>ogre</engine>
+        <scene>scene</scene>
+
+        <ambient_light>0.4 0.4 0.4</ambient_light>
+        <background_color>0.8 0.8 0.8</background_color>
+
+        <camera_pose>-35 0 12 0 0.20 0</camera_pose>
+
+        <camera_clip>
+          <near>0.25</near>
+          <far>25000</far>
+        </camera_clip>
+      </plugin>
+
+      <plugin filename="GzSceneManager" name="Scene Manager">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+
+      <plugin filename="InteractiveViewControl" name="Interactive view control">
+        <gz-gui>
+          <property key="resizable" type="bool">false</property>
+          <property key="width" type="double">5</property>
+          <property key="height" type="double">5</property>
+          <property key="state" type="string">floating</property>
+          <property key="showTitleBar" type="bool">false</property>
+        </gz-gui>
+      </plugin>
+
+    </gui>
 
     <model name="heightmap_terrain">
       <static>true</static>
       <link name="terrain_link">
-
+        <pose>0 0 -2.5 0 0 0</pose>
         <collision name="terrain_collision">
           <geometry>
             <heightmap>
