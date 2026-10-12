@@ -555,7 +555,8 @@
       <right_joint>middle_right_wheel_joint</right_joint>
       <wheel_separation>3.07528</wheel_separation>
       <wheel_radius>0.493</wheel_radius>
-      <odom_publish_frequency>1</odom_publish_frequency>
+      <odom_publish_frequency>10</odom_publish_frequency>
+      <odom_topic>/model/excavator/odometry</odom_topic>
       <topic>cmd_vel</topic>
     </plugin>
   </gazebo>

@@ -56,11 +56,15 @@ def generate_launch_description():
         default_value="cat-302-cr",
         choices=["cat-302-cr", "blast-dog"],
         description="Excavator configuration to spawn",
+    gnss_enabled_arg = DeclareLaunchArgument(
+        "gnss_enabled",
+        default_value="true",
     )
 
     world = LaunchConfiguration("world")
     use_sim_time = LaunchConfiguration("use_sim_time")
     machine_variant = LaunchConfiguration("machine_variant")
+    gnss_enabled = LaunchConfiguration("gnss_enabled")
 
     # ---- Process the xacro/URDF into robot_description ---------------------
     xacro_file = os.path.join(pkg_share, "urdf", robot_name + ".urdf.xacro")
@@ -197,6 +201,18 @@ def generate_launch_description():
         output="screen",
     )
 
+    gnss_node = Node(
+        package=pkg_name,
+        executable="gnss_node",
+        name="gnss_node",
+        output="screen",
+        parameters=[
+            os.path.join(pkg_share, "config", "gnss.yaml"),
+            {"use_sim_time": use_sim_time},
+        ],
+        condition=IfCondition(gnss_enabled),
+    )
+
     return LaunchDescription(
         [
             SetEnvironmentVariable(
@@ -206,10 +222,12 @@ def generate_launch_description():
             world_arg,
             use_sim_time_arg,
             machine_variant_arg,
+            gnss_enabled_arg,
             robot_state_publisher,
             gz_sim,
             spawn_robot,
             bridge,
+            gnss_node,
             joint_state_broadcaster,
             upper_arm_controller,
             lower_arm_controller,

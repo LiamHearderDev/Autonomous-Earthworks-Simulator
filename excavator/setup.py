@@ -57,6 +57,8 @@ setup(
         'console_scripts': [
             # Add here any Python nodes you write
             'excavator_teleop = excavator.excavator_teleop:main',
+            'gnss_node = excavator.gnss_node:main',
+            'gnss_export = excavator.gnss_export:main',
         ],
     },
 )
