@@ -295,11 +295,6 @@
 
   <!-- ================= CAMERA 1 ================= -->
   <link name="camera1_link">
-    <collision>
-      <geometry>
-        <box size="0.05 0.05 0.05"/>
-      </geometry>
-    </collision>
     <inertial>
       <mass value="0"/>
       <inertia ixx="0.000" ixy="0.0" ixz="0.0" iyy="0.000" iyz="0.0" izz="0.000"/>
@@ -337,11 +332,6 @@
 
    <!-- ================= CAMERA 2 ================= -->
   <link name="camera2_link">
-    <collision>
-      <geometry>
-        <box size="0.05 0.05 0.05"/>
-      </geometry>
-    </collision>
     <inertial>
       <mass value="0"/>
       <inertia ixx="0.000" ixy="0.0" ixz="0.0" iyy="0.000" iyz="0.0" izz="0.000"/>
