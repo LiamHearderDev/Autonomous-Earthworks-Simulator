@@ -23,12 +23,19 @@ class NavSatFix:
         self.status = SimpleNamespace()
 
 
+class ExternalShutdownException(Exception):
+    pass
+
+
 @pytest.fixture
-def node(monkeypatch):
+def gnss_module(monkeypatch):
     modules = {
         "geometry_msgs.msg": {"PoseStamped": PoseStamped},
         "nav_msgs.msg": {"Odometry": SimpleNamespace},
         "rclpy": {},
+        "rclpy.executors": {
+            "ExternalShutdownException": ExternalShutdownException,
+        },
         "rclpy.node": {"Node": object},
         "sensor_msgs.msg": {
             "NavSatFix": NavSatFix,
@@ -45,6 +52,12 @@ def node(monkeypatch):
     spec = importlib.util.spec_from_file_location("gnss_node_under_test", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    return module
+
+
+@pytest.fixture
+def node(gnss_module):
+    module = gnss_module
     instance = module.GnssNode.__new__(module.GnssNode)
     instance.converter = CoordinateConverter()
     instance.origin_latitude = 48.08028
@@ -138,3 +151,43 @@ def test_invalid_sample_is_dropped_and_next_valid_sample_publishes(
     node.odom_callback(odometry)
     for publisher in (node.fix_publisher, node.pose_publisher, node.heading_publisher):
         publisher.publish.assert_called_once()
+
+
+@pytest.mark.parametrize("spin_error", [
+    None,
+    KeyboardInterrupt(),
+    ExternalShutdownException(),
+])
+def test_main_cleans_up_after_spin(gnss_module, monkeypatch, spin_error):
+    instance = Mock()
+    monkeypatch.setattr(gnss_module, "GnssNode", Mock(return_value=instance))
+    ros = gnss_module.rclpy
+    ros.init = Mock()
+    ros.spin = Mock(side_effect=spin_error)
+    ros.shutdown = Mock(side_effect=RuntimeError("rcl_shutdown already called"))
+    ros.try_shutdown = Mock()
+
+    gnss_module.main(args=["--ros-args"])
+
+    ros.init.assert_called_once_with(args=["--ros-args"])
+    ros.spin.assert_called_once_with(instance)
+    instance.destroy_node.assert_called_once_with()
+    ros.try_shutdown.assert_called_once_with()
+    ros.shutdown.assert_not_called()
+
+
+def test_main_cleans_up_and_propagates_unexpected_spin_error(
+    gnss_module, monkeypatch
+):
+    instance = Mock()
+    monkeypatch.setattr(gnss_module, "GnssNode", Mock(return_value=instance))
+    ros = gnss_module.rclpy
+    ros.init = Mock()
+    ros.spin = Mock(side_effect=RuntimeError("spin failed"))
+    ros.try_shutdown = Mock()
+
+    with pytest.raises(RuntimeError, match="spin failed"):
+        gnss_module.main()
+
+    instance.destroy_node.assert_called_once_with()
+    ros.try_shutdown.assert_called_once_with()
