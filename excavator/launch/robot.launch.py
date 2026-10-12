@@ -21,6 +21,7 @@ from launch.actions import (
     IncludeLaunchDescription,
     SetEnvironmentVariable,
 )
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -53,9 +54,14 @@ def generate_launch_description():
         default_value="true",
         description="Use simulation clock",
     )
+    gnss_enabled_arg = DeclareLaunchArgument(
+        "gnss_enabled",
+        default_value="true",
+    )
 
     world = LaunchConfiguration("world")
     use_sim_time = LaunchConfiguration("use_sim_time")
+    gnss_enabled = LaunchConfiguration("gnss_enabled")
 
     # ---- Process the xacro/URDF into robot_description ---------------------
     xacro_file = os.path.join(pkg_share, "urdf", robot_name + ".urdf.xacro")
@@ -179,8 +185,13 @@ def generate_launch_description():
     gnss_node = Node(
         package=pkg_name,
         executable="gnss_node",
+        name="gnss_node",
         output="screen",
-        parameters=[{"use_sim_time": use_sim_time}],
+        parameters=[
+            os.path.join(pkg_share, "config", "gnss.yaml"),
+            {"use_sim_time": use_sim_time},
+        ],
+        condition=IfCondition(gnss_enabled),
     )
 
     return LaunchDescription(
@@ -191,6 +202,7 @@ def generate_launch_description():
             ),
             world_arg,
             use_sim_time_arg,
+            gnss_enabled_arg,
             robot_state_publisher,
             gz_sim,
             spawn_robot,
