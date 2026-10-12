@@ -351,13 +351,15 @@ def main():
         
         screenshot_node1 = ScreenshotPublisher(
             name="screenshot_teleop1",
-            key_bindings={'g':0}
+            key_bindings={'g':0},
+            id=1
         )
         Nodes.append(screenshot_node1)
         
         screenshot_node2 = ScreenshotPublisher(
             name="screenshot_teleop2",
-            key_bindings={'h':0}
+            key_bindings={'h':0},
+            id=2
         )
         Nodes.append(screenshot_node2)
 
