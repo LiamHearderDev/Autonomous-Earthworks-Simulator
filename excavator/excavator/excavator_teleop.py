@@ -38,9 +38,10 @@ Publishes Float64MultiArray velocity commands for the chassis and
 JointTrajectory position commands for the upper arm.
 """
 
+import math
 import select   # For non-blocked I/O
-import time     # For waiting 0.01s during I/O
 import sys      # For reading keyboard input
+import time     # For waiting 0.01s during I/O
 import termios  # POSIX terminal control library
 import tty      # POSIX terminal control library
 
@@ -96,9 +97,18 @@ class Float64Publisher(RosNode):
 
 
 class JointTrajectoryPublisher(RosNode):
-    """Command a joint toward an endpoint until a new target is sent."""
+    """Command a joint toward an endpoint, optionally limiting its trajectory speed."""
 
-    def __init__(self, name: str, joint_name: str, topic: str, key_bindings: dict, lower_limit: float, upper_limit: float):
+    def __init__(
+        self,
+        name: str,
+        joint_name: str,
+        topic: str,
+        key_bindings: dict,
+        lower_limit: float,
+        upper_limit: float,
+        rad_per_sec: float,
+    ):
         super().__init__(name)
         self.name = name
         self.publisher = self.create_publisher(JointTrajectory, topic, 10)
@@ -106,6 +116,11 @@ class JointTrajectoryPublisher(RosNode):
         self.key_bindings = key_bindings
         self.lower_limit = lower_limit
         self.upper_limit = upper_limit
+        if lower_limit > upper_limit:
+            raise ValueError("lower_limit must not exceed upper_limit")
+        if not math.isfinite(rad_per_sec) or rad_per_sec <= 0.0:
+            raise ValueError("rad_per_sec must be a finite positive value")
+        self.rad_per_sec = rad_per_sec
         self.joint_position = None
         self.create_subscription(
             JointState,
@@ -114,32 +129,95 @@ class JointTrajectoryPublisher(RosNode):
             10,
         )
 
+
     def joint_state_callback(self, message):
+        
         if self.joint_name in message.name:
             self.joint_position = message.position[message.name.index(self.joint_name)]
         else:
             print(f"did NOT find in joint state callback. Received message: \n---\n{message}\n---")
 
+
     def publish(self, direction):
         if not rclpy.ok() or self.joint_position is None:
             return
 
-        trajectory = JointTrajectory()
-        trajectory.joint_names = [self.joint_name]
-
-        point = JointTrajectoryPoint()
-        if direction > 0.0:
-            target_position = self.upper_limit
-        elif direction < 0.0:
-            target_position = self.lower_limit
-        else:
-            target_position = self.joint_position
-
-        point.positions = [target_position]
-        point.time_from_start.sec = 0
-        point.time_from_start.nanosec = 100000000
-        trajectory.points = [point]
+        trajectory = self.generate_trajectory(direction, self.joint_position)
         self.publisher.publish(trajectory)
+
+
+    def generate_trajectory(self, direction, current_position=None):
+        """ Generates a series of points for a JointTrajectory message based on the current joint position, 
+        the direction of movement, and the limits of the joint. Each point will be spaced out in time 
+        based on the rad_per_sec parameter, which defines how fast the joint should move, with a maximum of
+        0.1 rads/second. """
+        trajectory = JointTrajectory()
+
+        if current_position is None:
+            current_position = self.joint_position
+
+        trajectory.joint_names = [self.joint_name]
+        step_duration_sec = 0.1
+        step_duration_ns = 100_000_000
+
+        if direction == 0.0:
+            point = JointTrajectoryPoint()
+            point.positions = [current_position]
+            point.velocities = [0.0]
+            point.time_from_start.nanosec = step_duration_ns
+            trajectory.points = [point]
+        else:
+            end_goal = self.upper_limit if direction > 0.0 else self.lower_limit
+            end_goal = min(max(end_goal, self.lower_limit), self.upper_limit)
+            distance = abs(end_goal - current_position)
+            steps = max(
+                1,
+                math.ceil(distance / (self.rad_per_sec * step_duration_sec)),
+            )
+
+            for step in range(1, steps + 1):
+                point = JointTrajectoryPoint()
+                fraction = step / steps
+                point.positions = [
+                    current_position + (end_goal - current_position) * fraction
+                ]
+                elapsed_ns = step * step_duration_ns
+                point.time_from_start.sec, point.time_from_start.nanosec = divmod(
+                    elapsed_ns,
+                    1_000_000_000,
+                )
+                trajectory.points.append(point)
+        return trajectory
+
+
+    def test_generate_trajectory(self):
+        """Test the generate_trajectory method with various inputs."""
+        test_cases = [
+            ("No movement", 0.0, -0.2, 0.2, 0.1, 0.0),
+            ("Move to upper limit", 0.5, -0.2, 0.2, 0.1, 0.0),
+            ("Move to lower limit", -0.5, -0.2, 0.2, 0.1, 0.0),
+            ("Exceed upper limit", 1.5, -0.2, 0.2, 0.1, 0.0),
+            ("Exceed lower limit", -1.5, -0.2, 0.2, 0.1, 0.0),
+            ("Move to upper limit from mid position", 0.5, -0.2, 0.2, 0.1, 0.1),
+            ("Move to lower limit from mid position", -0.5, -0.2, 0.2, 0.1, -0.1),
+            ("Already at upper limit", 0.5, -0.2, 0.2, 0.1, 0.2),
+            ("Already at lower limit", -0.5, -0.2, 0.2, 0.1, -0.2),
+            ("Start above upper limit", 0.5, -0.2, 0.2, 0.1, 0.25),
+            ("Start below lower limit", -0.5, -0.2, 0.2, 0.1, -0.25),
+        ]
+
+        for name, direction, lower_limit, upper_limit, rad_per_sec, joint_position in test_cases:
+            self.joint_position = joint_position
+            self.lower_limit = lower_limit
+            self.upper_limit = upper_limit
+            self.rad_per_sec = rad_per_sec
+
+            print(f"Test Case: {name}")
+            trajectory = self.generate_trajectory(direction)
+            print(f"Direction: {direction}, Trajectory Points: {len(trajectory.points)}")
+            print(f"points: {[trajectory.points[i].positions[0] for i in range(len(trajectory.points))]}")
+            print("\n" + "-" * 20)
+
 ### JointTrajectoryPublisher ###
 
 
@@ -205,10 +283,12 @@ def main():
             joint_name='upper_arm_joint',
             topic='/upper_arm_controller/joint_trajectory',
             key_bindings={'8':-0.5, '2':0.5, '5': 0.0 },  # Up, Down, Stop
-            lower_limit=-0.8,
-            upper_limit=0.8
+            lower_limit=-0.5,
+            upper_limit=0.5,
+            rad_per_sec=0.2,
         )
         Nodes.append(upper_arm_node)
+        # upper_arm_node.test_generate_trajectory()  # Run the test for trajectory generation
 
         # Lower arm - Position
         lower_arm_node = JointTrajectoryPublisher(
@@ -216,8 +296,9 @@ def main():
             joint_name='lower_arm_joint',
             topic='/lower_arm_controller/joint_trajectory',
             key_bindings={'7':-0.5, '1':0.5, '5': 0.0 },  # Up, Down, Stop
-            lower_limit=-1.6,
-            upper_limit=0.0
+            lower_limit=-0.5,
+            upper_limit=0.5,
+            rad_per_sec=0.2,
         )
         Nodes.append(lower_arm_node)
 

@@ -9,19 +9,15 @@
   <xacro:include filename="$(find excavator)/model/control.xacro"/>
   <xacro:include filename="$(find excavator)/model/blastdog_attachment.xacro"/>
 
-  <material name="blue">
-    <color rgba="0.0 0.0 1.0 1"/>
-  </material>
-  <material name="red">
-    <color rgba="1.0 0.0 0.0 1"/>
-  </material>
-  <material name="green">
-    <color rgba="0.0 1.0 0.0 1"/>
-  </material>
+  <material name="blue">  <color rgba="0.0 0.0 1.0 1"/>   </material>
+  <material name="red">   <color rgba="1.0 0.0 0.0 1"/>   </material>
+  <material name="green"> <color rgba="0.0 1.0 0.0 1"/>   </material>
 
   <!-- ================= ROOT ================= -->
   <link name="root">
   </link>
+
+
 
   <!-- ================= BASE ================= -->
   <link name="base">
@@ -35,24 +31,25 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="2.0 1.0 0.5"/>
+        <mesh filename="package://excavator/meshes/CAT302_Base.obj"/>
       </geometry>
-      <material name="green"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="2.0 1.0 0.5"/>
+        <mesh filename="package://excavator/meshes/CAT302_Base_Collision.obj"/>
       </geometry>
     </collision>
   </link>
 
   <joint name="base_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+    <origin xyz="0 0 0" rpy="0 0 1.57"/>
     <parent link="root"/>
     <child link="base"/>
     <axis xyz="0 0 1"/>
   </joint>
+
+
 
   <!-- ================= CHASSIS ================= -->
   <link name="chassis">
@@ -66,86 +63,239 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="1.5 1.0 1.0"/>
+        <mesh filename="package://excavator/meshes/CAT302_Chassis.obj"/>
       </geometry>
-      <material name="blue"/>
     </visual>
-    <!-- <collision>
+    <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="1.5 1.0 1.0"/>
+        <mesh filename="package://excavator/meshes/CAT302_Chassis_Collision.obj"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
 
   <joint name="chassis_joint" type="revolute">
     <parent link="base"/>
     <child link="chassis"/>
-    <origin xyz="0 0 1.25" rpy="0 0 0"/>
+    <origin xyz="0.24113 0.003227 1.2527" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
     <limit lower="-1.5708" upper="1.5708" effort="1000" velocity="0.5" />
     <dynamics damping="0.1" friction="0.0"/>
   </joint>
 
+
+
   <!-- ================= UPPER ARM ================= -->
   <link name="upper_arm">
     <inertial>
-      <origin xyz="0 0 1" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="20.0"/>
       <inertia ixx="7.1167" ixy="0" ixz="0"
            iyy="7.1167" iyz="0"
            izz="0.9000"/>
     </inertial>
     <visual>
-      <origin xyz="0 0 1" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.2" length="2.0"/>
+        <mesh filename="package://excavator/meshes/CAT302_Boom.obj"/>
       </geometry>
-      <material name="green"/>
     </visual>
-    <!-- <collision>
+    <collision>
       <origin xyz="0 0 1" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.2" length="2.0"/>
+        <mesh filename="package://excavator/meshes/CAT302_Boom_Collision.obj"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
 
   <joint name="upper_arm_joint" type="revolute">
     <parent link="chassis"/>
     <child link="upper_arm"/>
-    <origin xyz="1.0 0 0.25" rpy="0 0.785398 0"/> <!-- Front + angled 45 degrees. -->
+    <origin xyz="2.58711 0.145316 -0.47084" rpy="0 0 0"/> <!-- Front + angled 45 degrees. -->
     <axis xyz="0 1 0"/>
-    <limit lower="-1.5" upper="1.5" effort="1000" velocity="0.5" />
+    <limit lower="-3.0" upper="3.0" effort="1000" velocity="0.5" />
     <dynamics damping="0.5" friction="0.0"/>
   </joint>
+
+
 
   <!-- ================= LOWER ARM ================= -->
   <link name="lower_arm">
     <inertial>
-      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="1.0"/>
       <inertia ixx="7.1167" ixy="0" ixz="0"
            iyy="7.1167" iyz="0"
            izz="0.9000"/>
     </inertial>
     <visual>
-      <origin xyz="0 0 0.5" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.2" length="1.0"/>
+        <mesh filename="package://excavator/meshes/CAT302_Stick.obj"/>
       </geometry>
-      <material name="green"/>
     </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://excavator/meshes/CAT302_Stick_Collision.obj"/>
+      </geometry>
+    </collision>
   </link>
 
   <joint name="lower_arm_joint" type="revolute">
     <parent link="upper_arm"/>
     <child link="lower_arm"/>
-    <origin xyz="0 0 2.0" rpy="0 2.356194 0"/>
+    <origin xyz="4.40739 0 2.31958" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-2.0" upper="1.0" effort="1000" velocity="0.5" />
+    <limit lower="-3.0" upper="3.0" effort="1000" velocity="0.5" />
     <dynamics damping="0.5" friction="0.0"/>
   </joint>
+  
+
+
+  <!-- ================= BUCKET ================= -->
+  <link name="bucket">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="7.1167" ixy="0" ixz="0"
+           iyy="7.1167" iyz="0"
+           izz="0.9000"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://excavator/meshes/CAT302_Bucket.obj"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://excavator/meshes/CAT302_Bucket.obj"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="bucket_joint" type="revolute">
+    <origin xyz="0.003227 0.00035 -3.11855"/>
+    <parent link="lower_arm"/>
+    <child link="bucket"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.0" upper="3.0" effort="1000" velocity="0.5" />
+    <dynamics damping="0.5" friction="0.0"/>
+  </joint>
+
+
+
+  <!-- ================= TREADS (only visual) ================= -->
+  <link name="left_treads">
+    <visual>
+      <geometry>
+        <mesh filename="package://excavator/meshes/CAT302_Treads.obj"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="left_treads_joint" type="fixed">
+    <origin xyz="0 1.53764 -0.467052" rpy="0 0 -1.5707"/>
+    <parent link="base"/>
+    <child link="left_treads"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="right_treads">
+    <visual>
+      <geometry>
+        <mesh filename="package://excavator/meshes/CAT302_Treads.obj"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="right_treads_joint" type="fixed">
+    <origin xyz="0 -1.53764 -0.467052" rpy="0 0 -1.5707"/>
+    <parent link="base"/>
+    <child link="right_treads"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+
+
+  <!-- ================= MIDDLE LEFT WHEEL  ================= -->
+  <link name="middle_left_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="5.0"/>
+      <inertia ixx="0.2167" ixy="0" ixz="0"
+           iyy="0.2167" iyz="0"
+           izz="0.4000"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.493" length="0.3"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="middle_left_wheel_joint" type="continuous">
+    <origin xyz="0 1.53764 -0.467052" rpy="-1.5707 0 0"/>
+    <parent link="base"/>
+    <child link="middle_left_wheel"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <gazebo reference="middle_left_wheel">
+    <collision>
+      <surface>
+        <friction>
+          <ode>
+            <mu>1.0</mu>
+            <mu2>0.02</mu2>
+            <fdir1>0 0 1</fdir1>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+  </gazebo>
+
+
+
+  <!-- ================= MIDDLE RIGHT WHEEL  ================= -->
+  <link name="middle_right_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="5.0"/>
+      <inertia ixx="0.2167" ixy="0" ixz="0"
+           iyy="0.2167" iyz="0"
+           izz="0.4000"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.493" length="0.3"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="middle_right_wheel_joint" type="continuous">
+    <origin xyz="0 -1.53764 -0.467052" rpy="-1.5707 0 0"/>
+    <parent link="base"/>
+    <child link="middle_right_wheel"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <gazebo reference="middle_right_wheel">
+    <collision>
+      <surface>
+        <friction>
+          <ode>
+            <mu>1.0</mu>
+            <mu2>0.02</mu2>
+            <fdir1>0 0 1</fdir1>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+  </gazebo>
+
+
 
   <!-- BLASTDOG reuses the excavator and replaces its tool with a sensing probe. -->
   <xacro:if value="${machine_variant == 'blast-dog'}">
@@ -161,23 +311,23 @@
            iyy="0.2167" iyz="0"
            izz="0.4000"/>
     </inertial>
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <cylinder radius="0.4" length="0.2"/>
-      </geometry>
-      <material name="red"/>
-    </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.493" length="0.3"/>
       </geometry>
     </collision>
+
+    <!-- <visual>
+      <geometry>
+        <cylinder radius="0.493" length="0.3"/>
+      </geometry>
+    </visual> -->
+
   </link>
 
   <joint name="back_left_wheel_joint" type="continuous">
-    <origin xyz="-0.5 0.6 0" rpy="-1.5707 0 0"/>
+    <origin xyz="-2.4672 1.53764 -0.467052" rpy="-1.5707 0 0"/>
     <parent link="base"/>
     <child link="back_left_wheel"/>
     <axis xyz="0 0 1"/>
@@ -197,6 +347,8 @@
     </collision>
   </gazebo>
 
+
+
   <!-- ================= BACK RIGHT WHEEL ================= -->
   <link name="back_right_wheel">
     <inertial>
@@ -206,23 +358,23 @@
            iyy="0.2167" iyz="0"
            izz="0.4000"/>
     </inertial>
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <cylinder radius="0.4" length="0.2"/>
-      </geometry>
-      <material name="red"/>
-    </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.493" length="0.3"/>
       </geometry>
     </collision>
+
+    <!-- <visual>
+      <geometry>
+        <cylinder radius="0.493" length="0.3"/>
+      </geometry>
+    </visual> -->
+
   </link>
 
   <joint name="back_right_wheel_joint" type="continuous">
-    <origin xyz="-0.5 -0.6 0" rpy="-1.5707 0 0"/>
+    <origin xyz="-2.4672 -1.53764 -0.467052" rpy="-1.5707 0 0"/>
     <parent link="base"/>
     <child link="back_right_wheel"/>
     <axis xyz="0 0 1"/>
@@ -242,6 +394,8 @@
     </collision>
   </gazebo>
 
+
+
   <!-- ================= FRONT LEFT WHEEL ================= -->
   <link name="front_left_wheel">
     <inertial>
@@ -251,23 +405,23 @@
            iyy="0.2167" iyz="0"
            izz="0.4000"/>
     </inertial>
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <cylinder radius="0.4" length="0.2"/>
-      </geometry>
-      <material name="red"/>
-    </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.493" length="0.3"/>
       </geometry>
     </collision>
+
+    <!-- <visual>
+      <geometry>
+        <cylinder radius="0.493" length="0.3"/>
+      </geometry>
+    </visual> -->
+
   </link>
 
   <joint name="front_left_wheel_joint" type="continuous">
-    <origin xyz="0.5 0.6 0" rpy="-1.5707 0 0"/>
+    <origin xyz="2.4672 1.53764 -0.467052" rpy="-1.5707 0 0"/>
     <parent link="base"/>
     <child link="front_left_wheel"/>
     <axis xyz="0 0 1"/>
@@ -287,6 +441,8 @@
     </collision>
   </gazebo>
 
+
+
   <!-- ================= FRONT RIGHT WHEEL ================= -->
   <link name="front_right_wheel">
     <inertial>
@@ -296,23 +452,23 @@
            iyy="0.2167" iyz="0"
            izz="0.4000"/>
     </inertial>
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <cylinder radius="0.4" length="0.2"/>
-      </geometry>
-      <material name="red"/>
-    </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.4" length="0.2"/>
+        <cylinder radius="0.493" length="0.3"/>
       </geometry>
     </collision>
+
+    <!-- <visual>
+      <geometry>
+        <cylinder radius="0.493" length="0.3"/>
+      </geometry>
+    </visual> -->
+
   </link>
 
   <joint name="front_right_wheel_joint" type="continuous">
-    <origin xyz="0.5 -0.6 0" rpy="-1.5707 0 0"/>
+    <origin xyz="2.4672 -1.53764 -0.467052" rpy="-1.5707 0 0"/>
     <parent link="base"/>
     <child link="front_right_wheel"/>
     <axis xyz="0 0 1"/>
@@ -332,22 +488,25 @@
     </collision>
   </gazebo>
 
+
+
   <!-- ================= DIFF DRIVE PLUGIN ================= -->
   <gazebo>
     <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
       <left_joint>back_left_wheel_joint</left_joint>
       <left_joint>front_left_wheel_joint</left_joint>
+      <left_joint>middle_left_wheel_joint</left_joint>
       <right_joint>back_right_wheel_joint</right_joint>
       <right_joint>front_right_wheel_joint</right_joint>
-      <wheel_separation>1.2</wheel_separation>
-      <wheel_radius>0.4</wheel_radius>
+      <right_joint>middle_right_wheel_joint</right_joint>
+      <wheel_separation>3.07528</wheel_separation>
+      <wheel_radius>0.493</wheel_radius>
       <odom_publish_frequency>1</odom_publish_frequency>
       <topic>cmd_vel</topic>
     </plugin>
   </gazebo>
 
-  <!-- ================= JOINT CONTROLLER PLUGIN ================= -->
-  <!-- deleted for now -->
+
 
   <!-- ================= JOINT PUBLISHER ================= -->
   <gazebo>

@@ -17,7 +17,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
@@ -31,6 +31,14 @@ def generate_launch_description():
     robot_name = "excavator"
 
     pkg_share = get_package_share_directory(pkg_name)
+    gz_resource_path = os.pathsep.join(
+        path
+        for path in [
+            os.path.dirname(pkg_share),
+            os.environ.get("GZ_SIM_RESOURCE_PATH", ""),
+        ]
+        if path
+    )
 
     # ---- Launch arguments -------------------------------------------------
     world_arg = DeclareLaunchArgument(
@@ -166,6 +174,10 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            SetEnvironmentVariable(
+                name="GZ_SIM_RESOURCE_PATH",
+                value=gz_resource_path,
+            ),
             world_arg,
             use_sim_time_arg,
             machine_variant_arg,

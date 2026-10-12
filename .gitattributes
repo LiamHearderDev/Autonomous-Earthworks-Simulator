@@ -1,0 +1,5 @@
+
+* text=auto
+
+*.bash text eol=lf
+earthworks text eol=lf

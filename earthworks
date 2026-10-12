@@ -8,8 +8,8 @@ Usage:
   ./earthworks <machine> <environment>
 
 Machines:
-  cat-302-cr  Standard CAT 302 CR excavator
-  blast-dog   IMDEX BLASTDOG excavator
+  cat-302-cr  CAT 302 CR
+  blast-dog   IMDEX Blast Dog
 
 Environments:
   goose       AARP Goose
@@ -93,6 +93,8 @@ source "$ros_setup"
 # shellcheck source=/dev/null
 source "$workspace_setup"
 set -u
+
+gnome-terminal -- bash -c "cd excavator/ && source install/setup.bash && source /opt/ros/jazzy/setup.bash && ros2 run excavator excavator_teleop"
 
 export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$project_dir"
 exec ros2 launch "$robot_package" robot.launch.py \
