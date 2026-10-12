@@ -1,3 +1,4 @@
+
 from math import atan2, degrees, isfinite, sqrt
 
 
@@ -7,6 +8,7 @@ def quaternion_to_heading(
     z: float,
     w: float,
 ) -> float:
+
     values = (x, y, z, w)
 
     if not all(isfinite(value) for value in values):

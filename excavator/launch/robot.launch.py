@@ -176,6 +176,13 @@ def generate_launch_description():
         output="screen",
     )
 
+    gnss_node = Node(
+        package=pkg_name,
+        executable="gnss_node",
+        output="screen",
+        parameters=[{"use_sim_time": use_sim_time}],
+    )
+
     return LaunchDescription(
         [
             SetEnvironmentVariable(
@@ -188,6 +195,7 @@ def generate_launch_description():
             gz_sim,
             spawn_robot,
             bridge,
+            gnss_node,
             joint_state_broadcaster,
             upper_arm_controller,
             lower_arm_controller,
