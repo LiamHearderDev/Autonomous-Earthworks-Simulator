@@ -261,18 +261,11 @@ class ScreenshotPublisher(RosNode):
     def __init__(self, name: str, key_bindings: dict, id:int):
         super().__init__(name)
         self.name = name
-
+        self.latestFrame = None
         self.bridge = CvBridge()
         self.key_bindings = key_bindings
-        self.latestFrame = None
         self.screenshotCounter = 0
         self.id = id
-        
-        self.imageSub = self.create_subscription(
-            Image,
-            f"/cam{self.id}/rgbd_camera/image", 
-            self.imageCallback,
-            1)
         
     def imageCallback(self, msg):
         self.latestFrame = msg
@@ -282,7 +275,17 @@ class ScreenshotPublisher(RosNode):
             return
 
         try:
+            imageSub = self.create_subscription(
+                        Image,
+                        f"/cam{self.id}/rgbd_camera/image", 
+                        self.imageCallback,
+                        1)
+            while self.latestFrame is None:
+                pass 
+            
             cvImage = self.bridge.imgmsg_to_cv2(self.latestFrame, desired_encoding='bgr8')
+            
+            self.destroy_subscription(imageSub)
 
             filename = f'../screenshots/excavator_screenshot_{self.screenshotCounter}.png'
             cv2.imwrite(filename, cvImage)
@@ -366,7 +369,8 @@ def main():
             topic="/blastdog_casing_controller/joint_trajectory",
             key_bindings={'9': -0.25, '3': 0.25, '5': 0.0}, # Up, Down, Stop
             lower_limit=0.0,
-            upper_limit=1.5
+            upper_limit=1.5,
+            rad_per_sec=0.2
         )
         Nodes.append(blastdog_probe_node)
         
