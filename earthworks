@@ -15,8 +15,9 @@ Environments:
   goose       AARP Goose
   empty       Empty Worksite
 
-Example:
+Examples:
   ./earthworks cat-302-cr goose
+  ./earthworks blast-dog goose
 EOF
 }
 
@@ -36,17 +37,20 @@ ros_setup=/opt/ros/jazzy/setup.bash
 workspace_setup="$project_dir/excavator/install/setup.bash"
 
 case $1 in
-    cat-302-cr) machine='CAT 302 CR' ;;
-    blast-dog) machine='IMDEX Blast Dog' ;;
+    cat-302-cr)
+        machine='Standard CAT 302 CR'
+        robot_package=excavator
+        ;;
+    blast-dog)
+        machine='IMDEX BLASTDOG'
+        robot_package=excavator
+        ;;
     *)
         printf 'Unknown machine: %s\n' "$1" >&2
         printf 'Choose cat-302-cr or blast-dog.\n' >&2
         exit 1
         ;;
 esac
-
-# Blast Dog uses the CAT excavator model until its own ROS package is added.
-robot_package=excavator
 
 case $2 in
     goose)
@@ -77,8 +81,8 @@ fi
 
 printf '\nMachine selected: %s\n' "$machine"
 printf 'Environment selected: %s\n' "$environment"
-if [[ $machine == 'IMDEX Blast Dog' ]]; then
-    printf 'Using the CAT excavator model temporarily for Blast Dog.\n'
+if [[ $1 == 'blast-dog' ]]; then
+    printf 'Using the shared CAT 302 CR simulation model for BLASTDOG.\n'
 fi
 printf 'Starting the simulator...\n\n'
 
@@ -93,4 +97,6 @@ set -u
 gnome-terminal -- bash -c "cd excavator/ && source install/setup.bash && source /opt/ros/jazzy/setup.bash && ros2 run excavator excavator_teleop"
 
 export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$project_dir"
-exec ros2 launch "$robot_package" robot.launch.py "world:=$world_file"
+exec ros2 launch "$robot_package" robot.launch.py \
+    "world:=$world_file" \
+    "machine_variant:=$1"

@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--
+    First-pass IMDEX BLASTDOG attachment.
+
+    The probe dimensions come from the BLASTDOG information sheet:
+      length:   1.75 m
+      diameter: 0.105 m
+
+    The probe is deployed vertically by a one-metre prismatic joint.
+  -->
+  <xacro:macro name="blastdog_attachment" params="parent">
+    <link name="casing">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="1.0"/>
+        <inertia ixx="7.1167" ixy="0" ixz="0"
+            iyy="7.1167" iyz="0"
+            izz="0.9000"/>
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="package://excavator/meshes/BlastDog_Casing.obj"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://excavator/meshes/BlastDog_Casing.obj"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="casing_joint" type="revolute">
+      <origin xyz="0.00 -0.2744 -3.29097"/>
+      <parent link="lower_arm"/>
+      <child link="casing"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-3.0" upper="3.0" effort="1000" velocity="0.5" />
+      <dynamics damping="0.5" friction="0.0"/>
+    </joint>
+
+     <link name="probe">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="1.0"/>
+        <inertia ixx="7.1167" ixy="0" ixz="0"
+            iyy="7.1167" iyz="0"
+            izz="0.9000"/>
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="package://excavator/meshes/BlastDog_Probe.obj"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://excavator/meshes/BlastDog_Probe.obj"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="probe_joint" type="fixed">
+      <origin xyz="0.5945147 0 -0.58332"/>
+      <parent link="casing"/>
+      <child link="probe"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-3.0" upper="3.0" effort="1000" velocity="0.5" />
+      <dynamics damping="0.5" friction="0.0"/>
+    </joint>
+    
+  </xacro:macro>
+
+</robot>

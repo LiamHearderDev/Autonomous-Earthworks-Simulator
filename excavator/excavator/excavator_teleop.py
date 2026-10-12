@@ -12,10 +12,15 @@ Boom Controls:              Stick Controls:
     8 - Pitch up                7 - Pitch ip
     5 - Stop                    5 - Stop
     2 - Pitch down              1 - Pitch down
-
-Other Controls:             Camera Controls:
-    q - quit                    G - Take Photo (Camera 1)
-    Ctrl-C - quit               H - Take Photo (Camera 2)
+    
+Bucket/Probe Controls:      Camera Controls:
+    9 - Pitch up                G - Take Photo (Camera 1)
+    5 - Stop                    H - Take Photo (Camera 2)
+    3 - Pitch down                 
+                                
+Other Controls:             
+    q - quit                    
+    Ctrl-C - quit               
 
 Press the corresponding keys on your keyboard
 to control the excavator!
@@ -130,7 +135,7 @@ class JointTrajectoryPublisher(RosNode):
         if self.joint_name in message.name:
             self.joint_position = message.position[message.name.index(self.joint_name)]
         else:
-            print(f"did NOT find in joint state callback. Here it is: \n---\n{message}\n---")
+            print(f"did NOT find in joint state callback. Received message: \n---\n{message}\n---")
 
 
     def publish(self, direction):
@@ -241,6 +246,7 @@ class TwistPublisher(RosNode):
             linear_x, angular_z = 0.0, 0.0
         else:
             linear_x, angular_z = value
+
         msg.linear.x = linear_x
         msg.angular.z = angular_z
         self.publisher.publish(msg)
@@ -255,18 +261,11 @@ class ScreenshotPublisher(RosNode):
     def __init__(self, name: str, key_bindings: dict, id:int):
         super().__init__(name)
         self.name = name
-
+        self.latestFrame = None
         self.bridge = CvBridge()
         self.key_bindings = key_bindings
-        self.latestFrame = None
         self.screenshotCounter = 0
         self.id = id
-        
-        self.imageSub = self.create_subscription(
-            Image,
-            f"/cam{self.id}/rgbd_camera/image", 
-            self.imageCallback,
-            1)
         
     def imageCallback(self, msg):
         self.latestFrame = msg
@@ -276,7 +275,17 @@ class ScreenshotPublisher(RosNode):
             return
 
         try:
+            imageSub = self.create_subscription(
+                        Image,
+                        f"/cam{self.id}/rgbd_camera/image", 
+                        self.imageCallback,
+                        1)
+            while self.latestFrame is None:
+                pass 
+            
             cvImage = self.bridge.imgmsg_to_cv2(self.latestFrame, desired_encoding='bgr8')
+            
+            self.destroy_subscription(imageSub)
 
             filename = f'../screenshots/excavator_screenshot_{self.screenshotCounter}.png'
             cv2.imwrite(filename, cvImage)
@@ -289,11 +298,9 @@ class ScreenshotPublisher(RosNode):
 
 def get_key():
     """ Get a single keypress from the terminal. """
-
     readable, _, _ = select.select([sys.stdin], [], [], 0)
     if readable:
         return sys.stdin.read(1)
-    
     return None
 
 
@@ -355,6 +362,18 @@ def main():
         )
         Nodes.append(chassis_node)
 
+        # BLASTDOG probe - position
+        blastdog_probe_node = JointTrajectoryPublisher(
+            name='blastdog_casing_teleop',
+            joint_name='casing_joint',
+            topic="/blastdog_casing_controller/joint_trajectory",
+            key_bindings={'9': -0.25, '3': 0.25, '5': 0.0}, # Up, Down, Stop
+            lower_limit=0.0,
+            upper_limit=1.5,
+            rad_per_sec=0.2
+        )
+        Nodes.append(blastdog_probe_node)
+        
         # Camera 1 - Images
         screenshot_node1 = ScreenshotPublisher(
             name="screenshot_teleop1",
