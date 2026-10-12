@@ -12,10 +12,15 @@ Boom Controls:              Stick Controls:
     8 - Pitch up                7 - Pitch ip
     5 - Stop                    5 - Stop
     2 - Pitch down              1 - Pitch down
-
-Other Controls:             Camera Controls:
-    q - quit                    G - Take Photo (Camera 1)
-    Ctrl-C - quit               H - Take Photo (Camera 2)
+    
+Bucket/Probe Controls:      Camera Controls:
+    9 - Pitch up                G - Take Photo (Camera 1)
+    5 - Stop                    H - Take Photo (Camera 2)
+    3 - Pitch down                 
+                                
+Other Controls:             
+    q - quit                    
+    Ctrl-C - quit               
 
 Press the corresponding keys on your keyboard
 to control the excavator!
@@ -354,20 +359,12 @@ def main():
         )
         Nodes.append(chassis_node)
 
-        # blastdog_probe_node = Float64Publisher(
-        #     name='blastdog_probe_teleop',
-        #     link_name='blastdog_probe',
-        #     joint_name='blastdog_probe_joint',
-        #     topic='/blastdog_probe_controller/commands',
-        #     key_bindings={'9': 0.25, '3': -0.25, '5': 0.0},  # Up, Down, Stop
-        # )
-
-        # BLASTDOG probe - vertical prismatic joint velocity
+        # BLASTDOG probe - position
         blastdog_probe_node = JointTrajectoryPublisher(
-            name='blastdog_probe_teleop',
-            joint_name='blastdog_probe_joint',
-            topic="/blastdog_probe_controller/joint_trajectory",
-            key_bindings={'9': -0.25, '3': 0.25, '5': 0.0},
+            name='blastdog_casing_teleop',
+            joint_name='casing_joint',
+            topic="/blastdog_casing_controller/joint_trajectory",
+            key_bindings={'9': -0.25, '3': 0.25, '5': 0.0}, # Up, Down, Stop
             lower_limit=0.0,
             upper_limit=1.5
         )

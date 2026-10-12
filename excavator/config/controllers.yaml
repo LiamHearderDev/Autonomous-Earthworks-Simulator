@@ -15,7 +15,7 @@ controller_manager:
     chassis_controller:
       type: forward_command_controller/ForwardCommandController
 
-    blastdog_probe_controller:
+    blastdog_casing_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
 upper_arm_controller:
@@ -50,10 +50,10 @@ chassis_controller:
       - chassis_joint
     interface_name: velocity
 
-blastdog_probe_controller:
+blastdog_casing_controller:
   ros__parameters:
     joints:
-      - blastdog_probe_joint
+      - casing_joint
     command_interfaces:
       - position
     state_interfaces:
@@ -62,3 +62,4 @@ blastdog_probe_controller:
     constraints:
       stopped_velocity_tolerance: 0.01
       goal_time: 0.25
+

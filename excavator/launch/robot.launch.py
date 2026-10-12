@@ -123,11 +123,11 @@ def generate_launch_description():
         output="screen",
     )
 
-    blastdog_probe_controller = Node(
+    blastdog_casing_controller = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "blastdog_probe_controller",
+            "blastdog_casing_controller",
             "--controller-manager",
             "/controller_manager",
         ],
@@ -214,7 +214,7 @@ def generate_launch_description():
             upper_arm_controller,
             lower_arm_controller,
             chassis_controller,
-            blastdog_probe_controller,
+            blastdog_casing_controller,
             camera_bridge,
             camera_view1,
             camera_view2
