@@ -133,4 +133,36 @@ ros2 bag play gnss_recording
 
 Playback republishes the saved messages on `/fix`, `/gnss/pose`, and `/gnss/heading`. Use the corresponding echo commands to view the saved pose and heading too. Playback ends when the recording finishes; use `ros2 bag play --loop gnss_recording` for repeated playback and Ctrl+C to stop it.
 
-ROS bag recording is the offline save/export method for GNSS data. It preserves ROS messages for later inspection and replay; it does not create a CSV spreadsheet. See the [ROS bag documentation](https://github.com/ros2/rosbag2) for more recording and playback options.
+## Export saved GNSS data to readable text
+
+The `.mcap` or `.db3` data inside a ROS bag is binary and cannot be read in a text editor. Use `gnss_export` to create a readable `.txt` copy of the saved latitude, longitude, altitude, local position, quaternion orientation, and compass heading. It reads the bag directly, so no simulator, playback, or echo terminals are needed.
+
+After installing this feature, build the excavator package once from the repository root:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+cd excavator
+colcon build --symlink-install --packages-select excavator
+cd ..
+source excavator/install/setup.bash
+```
+
+Finish recording with Ctrl+C, then export the saved bag from a prepared terminal:
+
+```bash
+ros2 run excavator gnss_export gnss_recording
+```
+
+This creates `gnss_recording.txt` next to the `gnss_recording/` folder. Open it in any text editor to view all recorded GNSS messages, their timestamps, units, and message counts. The original bag stays unchanged.
+
+To choose a different output filename:
+
+```bash
+ros2 run excavator gnss_export gnss_recording -o gnss_data.txt
+```
+
+Relative output paths are saved in the directory where you run the command. You can also provide absolute paths to the bag and output file. The output directory must already exist. Existing files are never overwritten; choose another filename with `-o` for a new export.
+
+The exporter supports MCAP and SQLite3 ROS bag directories. It exports the available `/fix`, `/gnss/pose`, and `/gnss/heading` messages, ignores unrelated topics, and reports the count for each GNSS topic. A bag containing only `/fix` can still be exported; missing GNSS topics have a count of zero. A bag with no recorded GNSS messages produces an error.
+
+ROS bags preserve the original messages for replay and future exports. The text export is a readable copy rather than a CSV spreadsheet. See the [ROS bag documentation](https://github.com/ros2/rosbag2) for more recording and playback options.
