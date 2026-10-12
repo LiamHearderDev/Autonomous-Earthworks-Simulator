@@ -55,7 +55,8 @@ def generate_launch_description():
         "machine_variant",
         default_value="cat-302-cr",
         choices=["cat-302-cr", "blast-dog"],
-        description="Excavator configuration to spawn",
+        description="Excavator configuration to spawn"
+    )
     gnss_enabled_arg = DeclareLaunchArgument(
         "gnss_enabled",
         default_value="true",
