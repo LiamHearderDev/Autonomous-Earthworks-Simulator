@@ -41,6 +41,10 @@ setup(
         # Heightmap resources used by the worlds
         (os.path.join('share', package_name, 'worlds', 'heightmaps'),
             glob('worlds/heightmaps/*')),
+        
+        # For Cat 302 CR vs Blastdog attachments
+        (os.path.join('share', package_name, 'attachments'),
+                    glob('attachments/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -53,6 +57,8 @@ setup(
         'console_scripts': [
             # Add here any Python nodes you write
             'excavator_teleop = excavator.excavator_teleop:main',
+            'gnss_node = excavator.gnss_node:main',
+            'gnss_export = excavator.gnss_export:main',
         ],
     },
 )

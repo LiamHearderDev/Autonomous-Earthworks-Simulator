@@ -10,19 +10,17 @@ Starts:
 Usage:
   ros2 launch excavator robot.launch.py
   ros2 launch excavator robot.launch.py world:=my_world.sdf
+  ros2 launch excavator robot.launch.py machine_variant:=blast-dog
 """
 
 import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import (
-    DeclareLaunchArgument,
-    IncludeLaunchDescription,
-    SetEnvironmentVariable,
-)
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import Command
@@ -30,7 +28,7 @@ from launch.substitutions import Command
 
 def generate_launch_description():
     pkg_name = "excavator"          # TODO: change this, if this isn't an excavator
-    robot_name = "excavator"        # TODO: change this, if this isn't an excavator
+    robot_name = "excavator"
 
     pkg_share = get_package_share_directory(pkg_name)
     gz_resource_path = os.pathsep.join(
@@ -53,14 +51,27 @@ def generate_launch_description():
         default_value="true",
         description="Use simulation clock",
     )
+    machine_variant_arg = DeclareLaunchArgument(
+        "machine_variant",
+        default_value="cat-302-cr",
+        choices=["cat-302-cr", "blast-dog"],
+        description="Excavator configuration to spawn",
+    gnss_enabled_arg = DeclareLaunchArgument(
+        "gnss_enabled",
+        default_value="true",
+    )
 
     world = LaunchConfiguration("world")
     use_sim_time = LaunchConfiguration("use_sim_time")
+    machine_variant = LaunchConfiguration("machine_variant")
+    gnss_enabled = LaunchConfiguration("gnss_enabled")
 
     # ---- Process the xacro/URDF into robot_description ---------------------
     xacro_file = os.path.join(pkg_share, "urdf", robot_name + ".urdf.xacro")
     robot_description = {
-        "robot_description": Command(["xacro ", xacro_file])
+        "robot_description": Command(
+            ["xacro ", xacro_file, " machine_variant:=", machine_variant]
+        )
     }
 
     # ---- robot_state_publisher ---------------------------------------------
@@ -114,6 +125,20 @@ def generate_launch_description():
             "/controller_manager",
         ],
         output="screen",
+    )
+
+    blastdog_casing_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "blastdog_casing_controller",
+            "--controller-manager",
+            "/controller_manager",
+        ],
+        output="screen",
+        condition=IfCondition(
+            PythonExpression(["'", machine_variant, "' == 'blast-dog'"])
+        ),
     )
 
     # ---- Start Gazebo (gz sim) via ros_gz_sim's launch file ----------------
@@ -176,6 +201,18 @@ def generate_launch_description():
         output="screen",
     )
 
+    gnss_node = Node(
+        package=pkg_name,
+        executable="gnss_node",
+        name="gnss_node",
+        output="screen",
+        parameters=[
+            os.path.join(pkg_share, "config", "gnss.yaml"),
+            {"use_sim_time": use_sim_time},
+        ],
+        condition=IfCondition(gnss_enabled),
+    )
+
     return LaunchDescription(
         [
             SetEnvironmentVariable(
@@ -184,14 +221,18 @@ def generate_launch_description():
             ),
             world_arg,
             use_sim_time_arg,
+            machine_variant_arg,
+            gnss_enabled_arg,
             robot_state_publisher,
             gz_sim,
             spawn_robot,
             bridge,
+            gnss_node,
             joint_state_broadcaster,
             upper_arm_controller,
             lower_arm_controller,
             chassis_controller,
+            blastdog_casing_controller,
             camera_bridge,
             camera_view1,
             camera_view2
