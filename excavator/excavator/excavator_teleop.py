@@ -1,41 +1,25 @@
 #!/usr/bin/env python3
 """
-Keyboard teleop for the excavator. Designed to be operated using the 
-numpad.
+-----------------------------------------------
+Movement Controls:          Chassis Controls:
+    W - Forward                 4 - Rotate left
+    A - Left                    5 - Stop
+    S - Back                    6 - Rotate right
+    D - Right                   
+    X - Stop                    
 
-Movement Controls:
-    W - Forward
-    A - Left
-    S - Back
-    D - Right
-    X - Stop
+Boom Controls:              Stick Controls:
+    8 - Pitch up                7 - Pitch ip
+    5 - Stop                    5 - Stop
+    2 - Pitch down              1 - Pitch down
 
-Upper Arm Controls:
-    8 - Pitch up
-    5 - Stop
-    2 - Pitch down
+Other Controls:             Camera Controls:
+    q - quit                    G - Take Photo (Camera 1)
+    Ctrl-C - quit               H - Take Photo (Camera 2)
 
-Lower Arm Controls:
-    7 - Pitch up
-    5 - Stop
-    1 - Pitch down
-
-Chassis Controls:
-    4 - Rotate left
-    5 - Stop
-    6 - Rotate right
-
-BLASTDOG Probe Controls:
-    9 - Raise probe
-    5 - Stop
-    3 - Lower probe
-
-Other Controls:
-    q - quit
-    Ctrl-C - quit
-
-Publishes Float64MultiArray velocity commands for the chassis and
-JointTrajectory position commands for the upper arm.
+Press the corresponding keys on your keyboard
+to control the excavator!
+-----------------------------------------------
 """
 
 import math
@@ -44,6 +28,9 @@ import sys      # For reading keyboard input
 import time     # For waiting 0.01s during I/O
 import termios  # POSIX terminal control library
 import tty      # POSIX terminal control library
+import cv2      # Stands for OpenCV - image processing and computer vision library
+
+from cv_bridge import CvBridge
 
 import rclpy    # Python library for ROS 2
 from rclpy.node import Node as RosNode
@@ -52,7 +39,7 @@ from std_msgs.msg import Float64MultiArray
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from geometry_msgs.msg import Twist
 
-from sensor_msgs.msg import JointState  # For receiving data from the Joints
+from sensor_msgs.msg import JointState, Image   # For receiving data from the Joints, and Images
 
 
 
@@ -97,7 +84,15 @@ class Float64Publisher(RosNode):
 
 
 class JointTrajectoryPublisher(RosNode):
-    """Command a joint toward an endpoint, optionally limiting its trajectory speed."""
+    """ A publisher node inheriting from the ROS2 Node class designed specifically to 
+    publish the JointTrajectory datatype.
+
+    Each Joint Trajectory message is a time-stamped sequence of waypoints. 
+    It consists of:
+        A header        str,
+        Joint names     str[],
+        Points          JointTracjectoryPoint[]
+    """
 
     def __init__(
         self,
@@ -147,10 +142,12 @@ class JointTrajectoryPublisher(RosNode):
 
 
     def generate_trajectory(self, direction, current_position=None):
-        """ Generates a series of points for a JointTrajectory message based on the current joint position, 
-        the direction of movement, and the limits of the joint. Each point will be spaced out in time 
-        based on the rad_per_sec parameter, which defines how fast the joint should move, with a maximum of
+        """ Generates a series of points for a JointTrajectory message based on the 
+        current joint position, the direction of movement, and the limits of the 
+        joint. Each point will be spaced out in time based on the rad_per_sec 
+        parameter, which defines how fast the joint should move, with a maximum of
         0.1 rads/second. """
+
         trajectory = JointTrajectory()
 
         if current_position is None:
@@ -217,11 +214,17 @@ class JointTrajectoryPublisher(RosNode):
             print(f"Direction: {direction}, Trajectory Points: {len(trajectory.points)}")
             print(f"points: {[trajectory.points[i].positions[0] for i in range(len(trajectory.points))]}")
             print("\n" + "-" * 20)
-
 ### JointTrajectoryPublisher ###
 
 
 class TwistPublisher(RosNode):
+    """ A publisher node inheriting from ROS2 Node class designed specifically to 
+    publish the Twist datatype.
+
+    Each Twist message consists of two sub-messages:
+        geometry_msgs/Vector3   =   linear velocity
+        geometry_msgs/Vector3   =   angular velocity
+    """
     def __init__(self, name: str, topic: str, key_bindings: dict):
         super().__init__(name)
         self.name = name
@@ -243,6 +246,46 @@ class TwistPublisher(RosNode):
         msg.angular.z = angular_z
         self.publisher.publish(msg)
 ### TwistPublisher ###
+
+
+class ScreenshotPublisher(RosNode):
+    """ A publisher node inheriting from ROS2 Node class designed specifically to 
+    publish the Image datatype. This node subscribes to a camera topic 
+    and saves the latest image frame to disk when a key is pressed."""
+
+    def __init__(self, name: str, key_bindings: dict, id:int):
+        super().__init__(name)
+        self.name = name
+
+        self.bridge = CvBridge()
+        self.key_bindings = key_bindings
+        self.latestFrame = None
+        self.screenshotCounter = 0
+        self.id = id
+        
+        self.imageSub = self.create_subscription(
+            Image,
+            f"/cam{self.id}/rgbd_camera/image", 
+            self.imageCallback,
+            1)
+        
+    def imageCallback(self, msg):
+        self.latestFrame = msg
+            
+    def publish(self, value):
+        if not rclpy.ok():
+            return
+
+        try:
+            cvImage = self.bridge.imgmsg_to_cv2(self.latestFrame, desired_encoding='bgr8')
+
+            filename = f'../screenshots/excavator_screenshot_{self.screenshotCounter}.png'
+            cv2.imwrite(filename, cvImage)
+            self.screenshotCounter += 1
+            
+        except Exception as e:
+            print(e)
+### ScreenshotPublisher ###
 
 
 def get_key():
@@ -288,7 +331,6 @@ def main():
             rad_per_sec=0.2,
         )
         Nodes.append(upper_arm_node)
-        # upper_arm_node.test_generate_trajectory()  # Run the test for trajectory generation
 
         # Lower arm - Position
         lower_arm_node = JointTrajectoryPublisher(
@@ -312,7 +354,6 @@ def main():
         )
         Nodes.append(chassis_node)
 
-        
         # blastdog_probe_node = Float64Publisher(
         #     name='blastdog_probe_teleop',
         #     link_name='blastdog_probe',
@@ -331,6 +372,22 @@ def main():
             upper_limit=1.5
         )
         Nodes.append(blastdog_probe_node)
+        
+        # Camera 1 - Images
+        screenshot_node1 = ScreenshotPublisher(
+            name="screenshot_teleop1",
+            key_bindings={'g':0},
+            id=1
+        )
+        Nodes.append(screenshot_node1)
+
+        # Camera 2 - Images
+        screenshot_node2 = ScreenshotPublisher(
+            name="screenshot_teleop2",
+            key_bindings={'h':0},
+            id=2
+        )
+        Nodes.append(screenshot_node2)
 
     except Exception as e:
         print("Exeception occurred... Exiting teleop.")

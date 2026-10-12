@@ -296,11 +296,84 @@
   </gazebo>
 
 
-
   <!-- BLASTDOG reuses the excavator and replaces its tool with a sensing probe. -->
   <xacro:if value="${machine_variant == 'blast-dog'}">
     <xacro:blastdog_attachment parent="lower_arm"/>
   </xacro:if>
+  
+  <!-- ================= CAMERA 1 ================= -->
+  <link name="camera1_link">
+    <inertial>
+      <mass value="0"/>
+      <inertia ixx="0.000" ixy="0.0" ixz="0.0" iyy="0.000" iyz="0.0" izz="0.000"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="camera1_link">
+    <sensor name="excavator_camera1" type="rgbd_camera">
+      <camera name="camera1">
+        <horizontal_fov>1.047</horizontal_fov>
+        <image>
+          <width>960</width>
+          <height>720</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>100</far>
+        </clip>
+      </camera>
+
+      <always_on>1</always_on>
+      <update_rate>30</update_rate>
+      <visualize>1</visualize>
+      <topic>/cam1/rgbd_camera</topic>
+    </sensor>
+  </gazebo>
+
+  <joint name="camera1_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="camera1_link"/>
+    <origin xyz="0 0 1" rpy="0 0.26179 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+   <!-- ================= CAMERA 2 ================= -->
+  <link name="camera2_link">
+    <inertial>
+      <mass value="0"/>
+      <inertia ixx="0.000" ixy="0.0" ixz="0.0" iyy="0.000" iyz="0.0" izz="0.000"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="camera2_link">
+    <sensor name="excavator_camera2" type="rgbd_camera">
+      <camera name="camera2">
+        <horizontal_fov>1.047</horizontal_fov>
+        <image>
+          <width>960</width>
+          <height>720</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>100</far>
+        </clip>
+      </camera>
+
+      <always_on>1</always_on>
+      <update_rate>30</update_rate>
+      <visualize>1</visualize>
+      <topic>/cam2/rgbd_camera</topic>
+    </sensor>
+  </gazebo>
+
+  <joint name="camera2_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="camera2_link"/>
+    <origin xyz="1.3 1.25 3.7" rpy="0 0.6283 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
 
   <!-- ================= BACK LEFT WHEEL ================= -->
   <link name="back_left_wheel">
@@ -488,7 +561,16 @@
     </collision>
   </gazebo>
 
+  <!-- ================= CAMERA PLUGIN ================= -->
 
+  <gazebo>
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+      <topic>rgbd_camera</topic>
+    </plugin>
+  </gazebo>
 
   <!-- ================= DIFF DRIVE PLUGIN ================= -->
   <gazebo>
