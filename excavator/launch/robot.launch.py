@@ -16,7 +16,11 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    IncludeLaunchDescription,
+    SetEnvironmentVariable,
+)
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -29,6 +33,14 @@ def generate_launch_description():
     robot_name = "excavator"        # TODO: change this, if this isn't an excavator
 
     pkg_share = get_package_share_directory(pkg_name)
+    gz_resource_path = os.pathsep.join(
+        path
+        for path in [
+            os.path.dirname(pkg_share),
+            os.environ.get("GZ_SIM_RESOURCE_PATH", ""),
+        ]
+        if path
+    )
 
     # ---- Launch arguments -------------------------------------------------
     world_arg = DeclareLaunchArgument(
@@ -71,11 +83,22 @@ def generate_launch_description():
     output="screen",
 )
 
-    arm_controller = Node(
+    upper_arm_controller = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "arm_controller",
+            "upper_arm_controller",
+            "--controller-manager",
+            "/controller_manager",
+        ],
+        output="screen",
+    )
+
+    lower_arm_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "lower_arm_controller",
             "--controller-manager",
             "/controller_manager",
         ],
@@ -110,10 +133,35 @@ def generate_launch_description():
         arguments=[
             "-topic", "robot_description",
             "-name", robot_name,
-            "-x", "0.5", "-y", "0.0", "-z", "0.4",
+            "-x", "0.5", "-y", "0.0", "-z", "5.4",
         ],
         output="screen",
     )
+    
+    # ---- ROS <-> Gazebo Camera ----------------------------------------------
+    camera_bridge = Node(
+            package="ros_gz_image",
+            executable="image_bridge",
+            arguments=["/cam1/rgbd_camera/image", "/cam2/rgbd_camera/image"],
+            output="screen",
+            parameters=[{"use_sim_time": use_sim_time}],
+        )
+    
+    camera_view1 = Node(
+        package="rqt_image_view",
+        executable="rqt_image_view",
+        name="camera_view1",
+        arguments=["/cam1/rgbd_camera/image"],
+        output="screen"
+    )
+    
+    camera_view2 = Node(
+            package="rqt_image_view",
+            executable="rqt_image_view",
+            name="camera_view2",
+            arguments=["/cam2/rgbd_camera/image"],
+            output="screen"
+        )
 
     # ---- ROS <-> Gazebo bridge ----------------------------------------------
     bridge_config = PathJoinSubstitution(
@@ -130,6 +178,10 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            SetEnvironmentVariable(
+                name="GZ_SIM_RESOURCE_PATH",
+                value=gz_resource_path,
+            ),
             world_arg,
             use_sim_time_arg,
             robot_state_publisher,
@@ -137,7 +189,11 @@ def generate_launch_description():
             spawn_robot,
             bridge,
             joint_state_broadcaster,
-            arm_controller,
-            chassis_controller
+            upper_arm_controller,
+            lower_arm_controller,
+            chassis_controller,
+            camera_bridge,
+            camera_view1,
+            camera_view2
         ]
     )
